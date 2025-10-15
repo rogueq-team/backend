@@ -46,7 +46,7 @@ public class AuthController : ControllerBase
         if (user is null)
             return Unauthorized(new { message = "Неверный логин/Email или пароль" });
         if (!PasswordService.VerifyPassword(request.password, user.Password))
-             return Unauthorized(new { message = "Неверный логин/Email или пароль" });
+            return Unauthorized(new { message = "Неверный логин/Email или пароль" });
 
         var JWTServic = new JWTService(_configuration);
         string token = JWTServic.GenerateToken(user);
@@ -61,9 +61,26 @@ public class AuthController : ControllerBase
                 role = user.Role
             }
         });
-            
-            
-        
+
+    }
+
+    [HttpDelete("Delete")]
+    public IActionResult Delete(string email)
+    {
+        User? userBd = UserService.FindByEmail(email);
+        if (userBd is null)
+            return NotFound(new { message = "Такого пользователя не существует" });
+        UserService.Delete(userBd.Id);
+        return Ok(new
+        {
+            user = new
+            {
+                id = userBd.Id,
+                login = userBd.Login,
+                email = userBd.Email,
+                role = userBd.Role
+            }
+        });
     }
 
 }
