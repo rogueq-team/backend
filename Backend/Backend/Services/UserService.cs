@@ -45,7 +45,7 @@ public static class UserService
     }
     public static void Update(User user)
     {
-        
+
         User? replaceUser = FindById(user.Id);
         if (!(replaceUser is null))
         {
@@ -53,7 +53,12 @@ public static class UserService
             int index = Users.IndexOf(replaceUser);
             Users[index] = user;
         }
+    }
+    
+    public async static Task<string> Authentication(User user)
+    {
         
 
+        return "";
     }
 }

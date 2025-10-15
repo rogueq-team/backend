@@ -5,10 +5,11 @@ namespace Backend.Models
 {
     public class User
     {
-        private int id=0;
+        private int id = 0;
         private string login=string.Empty;
         private string email=string.Empty;
-        private string role = "platform";
+        private string role = string.Empty;
+        private string userType = string.Empty;
         private string password=string.Empty;
 
 
@@ -24,6 +25,10 @@ namespace Backend.Models
         
         [Required]
         public string Role { get { return role; } set { role = value; } }
+
+        [Required]
+        public string UserType { get { return userType; } set { userType = value; } }
+
         [Required(ErrorMessage ="Пароль обязателен")]
         public string Password { get{ return password; } set { password = value; } }
     }

@@ -6,6 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 [Route("[controller]")]
 public class AuthController : ControllerBase
 {
+     private readonly IConfiguration _configuration;
+    public AuthController(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
     [HttpGet("{id}")]
     public IActionResult Get(int id)
     {
@@ -33,8 +38,29 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("Authentication")]
-    public IActionResult Authentication(User user)
+    public IActionResult Authentication(AuthRequest request)
     {
+        var user = UserService.FindByEmail(request.LoginOrEmail) ?? UserService.FindByLogin(request.LoginOrEmail);
+        if (user is null)
+            return Unauthorized(new { message = "Неверный логин/Email или пароль" });
+        if (!PasswordService.VerifyPassword(request.password, user.Password))
+             return Unauthorized(new { message = "Неверный логин/Email или пароль" });
+
+        var JWTServic = new JWTService(_configuration);
+        string token = JWTServic.GenerateToken(user);
+        return Ok(new
+        {
+            token = token,
+            user = new
+            {
+                id = user.Id,
+                login = user.Login,
+                email = user.Email,
+                role = user.Role
+            }
+        });
+            
+            
         
     }
 
