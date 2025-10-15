@@ -11,6 +11,18 @@ public static class UserService
     static int id = 1;
 
     public static List<User> GetAll() => Users;
+    public static List<RegUser> GetAllReg()
+    {
+        List<RegUser> RegUsers = new();
+        List<User> Users = GetAll();
+        foreach (var User in Users)
+        {
+            RegUser regUser = new(User);
+            RegUsers.Add(regUser);
+        }
+        return RegUsers;
+        
+    }
 
     public static User? FindByLogin(string? login)
     {

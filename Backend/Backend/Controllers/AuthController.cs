@@ -17,28 +17,30 @@ public class AuthController : ControllerBase
         var user = UserService.FindById(id);
         if (user is null)
             return NotFound();
-        return Ok(user);
+        RegUser User = new(user);
+        return Ok(User);
     }
     [HttpGet]
     public IActionResult GetAll()
     {
-        return Ok(UserService.GetAll());
+        return Ok(UserService.GetAllReg());
     }
     [HttpPost("registration")]
-    public IActionResult Registration(User user)
+    public IActionResult Registration(User User)
     {
         if (!ModelState.IsValid)
             return BadRequest();
-        if (!(UserService.FindByEmail(user.Email) is null))
+        if (!(UserService.FindByEmail(User.Email) is null))
             return Conflict(new { message = "Пользователь с таким email уже существует" });
-        if (!(UserService.FindByLogin(user.Login) is null))
+        if (!(UserService.FindByLogin(User.Login) is null))
             return Conflict(new { message = "Пользователь с таким логином уже существует" });
-        UserService.Add(user);
-        return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
+        UserService.Add(User);
+        RegUser user = new(User);
+        return CreatedAtAction(nameof(Get), new { id = User.Id }, user);
     }
 
     [HttpPost("Authentication")]
-    public IActionResult Authentication(AuthRequest request)
+    public IActionResult Authentication(AuthUser request)
     {
         var user = UserService.FindByEmail(request.LoginOrEmail) ?? UserService.FindByLogin(request.LoginOrEmail);
         if (user is null)

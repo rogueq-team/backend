@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Backend.Models
 {
-    public class AuthRequest
+    public class AuthUser
     {
         [Required(ErrorMessage = "Логин или Email обязателен")]
         public string LoginOrEmail { get; set; } = string.Empty;
