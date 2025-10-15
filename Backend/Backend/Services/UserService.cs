@@ -64,13 +64,8 @@ public static class UserService
             user.Password = PasswordService.HashPassword(user.Password);
             int index = Users.IndexOf(replaceUser);
             Users[index] = user;
+            Users[index].Id = replaceUser.Id;
         }
     }
     
-    public async static Task<string> Authentication(User user)
-    {
-        
-
-        return "";
-    }
 }
