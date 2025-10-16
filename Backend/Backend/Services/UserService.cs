@@ -21,7 +21,7 @@ public static class UserService
             RegUsers.Add(regUser);
         }
         return RegUsers;
-        
+
     }
 
     public static User? FindByLogin(string? login)
@@ -37,7 +37,7 @@ public static class UserService
     }
     public static User? FindById(int id)
     {
-        
+
         return Users.Find(User => User.Id == id);
     }
 
@@ -66,11 +66,5 @@ public static class UserService
             Users[index] = user;
         }
     }
-    
-    public async static Task<string> Authentication(User user)
-    {
-        
 
-        return "";
-    }
 }

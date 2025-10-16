@@ -11,10 +11,10 @@ public class AuthController : ControllerBase
     {
         _configuration = configuration;
     }
-    [HttpGet("{id}")]
-    public IActionResult Get(int id)
+    [HttpGet("{Id}")]
+    public IActionResult Get(int Id)
     {
-        var user = UserService.FindById(id);
+        var user = UserService.FindById(Id);
         if (user is null)
             return NotFound();
         RegUser User = new(user);
@@ -25,7 +25,7 @@ public class AuthController : ControllerBase
     {
         return Ok(UserService.GetAllReg());
     }
-    [HttpPost("registration")]
+    [HttpPost("Registration")]
     public IActionResult Registration(User User)
     {
         if (!ModelState.IsValid)
@@ -50,15 +50,18 @@ public class AuthController : ControllerBase
 
         var JWTServic = new JWTService(_configuration);
         string token = JWTServic.GenerateToken(user);
+          double time = 1;
+        double.TryParse(_configuration["JWTOptions:timeout"], out time);
+        Response.Cookies.Append("NoJWT", token, new CookieOptions { Expires = DateTime.UtcNow.AddHours(time) });
         return Ok(new
         {
             token = token,
             user = new
             {
-                id = user.Id,
-                login = user.Login,
-                email = user.Email,
-                role = user.Role
+                Id = user.Id,
+                Login = user.Login,
+                Email = user.Email,
+                Role = user.Role
             }
         });
 
@@ -75,14 +78,68 @@ public class AuthController : ControllerBase
         {
             user = new
             {
-                id = userBd.Id,
-                login = userBd.Login,
-                email = userBd.Email,
-                role = userBd.Role
+                Id = userBd.Id,
+                Login = userBd.Login,
+                Email = userBd.Email,
+                Role = userBd.Role
             }
         });
     }
 
+    [HttpPut("Deactivate{Id}")]
+    public IActionResult Deactivate(int Id)
+    {
+        var user = UserService.FindById(Id);
+        if (user is null)
+            return NotFound();
+        else
+        {
+            if (user.DeletedAt == (new DateTime()))
+            {
+                user.DeletedAt = DateTime.Now;
+                return Ok(new
+                {
+                    Id = user.Id,
+                    DeletedAt = user.DeletedAt
+                });
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    message = "Пользователь является деактеваированным"
+                });
+            }
+
+        }
+    }
+    [HttpPut("Activate{Id}")]
+    public IActionResult Activate(int Id)
+    {
+        var user = UserService.FindById(Id);
+        if (user is null)
+            return NotFound();
+        else
+        {
+            if (user.DeletedAt == (new DateTime()))
+            {
+                return BadRequest(new
+                {
+                    message = "Пользователь является активированным"
+                });
+                
+            }
+            else
+            {
+                user.DeletedAt = new DateTime();
+                return Ok(new
+                {
+                    Id = user.Id,
+                    DeletedAt = user.DeletedAt
+                });
+            }
+        }
+    }
 }
 
 

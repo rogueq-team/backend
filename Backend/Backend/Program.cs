@@ -24,6 +24,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false, // Если не используете Audience
             ValidateLifetime = true, // Проверяем срок действия
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived=context =>
+            {
+                context.Token = context.Request.Cookies["NoJWT"];
+                return Task.CompletedTask;
+            }
+
+        };
     });
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<JWTService>();
