@@ -20,9 +20,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTOptions:NoSecretKey"]!)),
-            ValidateIssuer = false, // Если не используете Issuer
-            ValidateAudience = false, // Если не используете Audience
-            ValidateLifetime = true, // Проверяем срок действия
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived=context =>
+            {
+                context.Token = context.Request.Cookies["NoJWT"];
+                return Task.CompletedTask;
+            }
+
         };
     });
 builder.Services.AddAuthorization();

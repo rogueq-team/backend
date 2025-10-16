@@ -46,10 +46,13 @@ public class AuthController : ControllerBase
         if (user is null)
             return Unauthorized(new { message = "Неверный логин/Email или пароль" });
         if (!PasswordService.VerifyPassword(request.password, user.Password))
-             return Unauthorized(new { message = "Неверный логин/Email или пароль" });
+            return Unauthorized(new { message = "Неверный логин/Email или пароль" });
 
         var JWTServic = new JWTService(_configuration);
         string token = JWTServic.GenerateToken(user);
+        double time = 1;
+        double.TryParse(_configuration["JWTOptions:timeout"], out time);
+        Response.Cookies.Append("NoJWT", token, new CookieOptions { Expires = DateTime.UtcNow.AddHours(time) });
         return Ok(new
         {
             token = token,
@@ -61,10 +64,8 @@ public class AuthController : ControllerBase
                 role = user.Role
             }
         });
-            
-            
-        
     }
+
 
 }
 
