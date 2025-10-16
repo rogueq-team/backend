@@ -1,5 +1,6 @@
 using Backend.Models;
 using Backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -49,13 +50,17 @@ public class AuthController : ControllerBase
             return Unauthorized(new { message = "Неверный логин/Email или пароль" });
 
         var JWTServic = new JWTService(_configuration);
-        string token = JWTServic.GenerateToken(user);
-          double time = 1;
-        double.TryParse(_configuration["JWTOptions:timeout"], out time);
-        Response.Cookies.Append("NoJWT", token, new CookieOptions { Expires = DateTime.UtcNow.AddHours(time) });
+        string JWTtoken = JWTServic.GenerateAccesToken(user);
+        Response.Headers.Append("JWTToken", JWTtoken);
+
+        
+        var RefreshServic = new RefreshTokenService(_configuration);
+        string RefreshToken = RefreshServic.CreateRefreshToken(user.Id);
+        Response.Headers.Append("RefreshToken", RefreshToken);
         return Ok(new
         {
-            token = token,
+            JWTtoken = JWTtoken,
+            RefreshToken=RefreshToken,
             user = new
             {
                 Id = user.Id,
@@ -65,6 +70,40 @@ public class AuthController : ControllerBase
             }
         });
 
+    }
+
+    [HttpPost("RefreshToken{refreshToken}")]
+    public IActionResult RefreshToken(string refreshToken )
+    {
+    
+
+
+        if (string.IsNullOrEmpty(refreshToken))
+            return Unauthorized(new { message = "RefreshToken отсутствует" });
+
+
+        System.Console.WriteLine($"AAA{RefreshToken}");
+        var storedToken = new RefreshTokenService(_configuration);
+        
+        if (storedToken == null)
+            return Unauthorized(new { message = "Невалидный RefreshToken" });
+        var Token = storedToken.GetRefreshTokenByToken(refreshToken);
+        if (Token is null || !Token.IsActive)
+            return Unauthorized(new { message = "Истекший RefreshToken" });
+
+        var user = UserService.FindById(Token.UserId);
+        if (user is null)
+            return Unauthorized(new { message = "Пользователь не найден" });
+
+        var jwtService = new JWTService(_configuration);
+
+        var NewJWTToken = jwtService.GenerateAccesToken(user);
+
+        Response.Headers.Append("JWTToken", NewJWTToken.ToString());
+        return Ok(new
+        {
+            JwtToken = NewJWTToken,
+        });
     }
 
     [HttpDelete("Delete")]
