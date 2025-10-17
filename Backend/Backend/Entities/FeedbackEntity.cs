@@ -1,6 +1,6 @@
 ﻿namespace Backend.Entities
 {
-    public class Feedback
+    public class FeedbackEntity
     {
     }
 }

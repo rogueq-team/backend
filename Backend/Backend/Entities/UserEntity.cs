@@ -55,10 +55,11 @@ namespace Backend.Entities
         [MaxLength(600)]
         public string? Bio { get; set; }
 
-        public List<string>? SocialLinks { get; set; } 
+        public List<string>? SocialLinks { get; set; }
         //позже можно добавить отдельный класс
         //для классификации по названию платформы
 
+        [Required]
         public bool IsVerified { get; set; } = false;
     }
 }
