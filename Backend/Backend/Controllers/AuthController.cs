@@ -7,12 +7,19 @@ using Microsoft.AspNetCore.Mvc;
 [Route("[controller]")]
 public class AuthController : ControllerBase
 {
-     private readonly IConfiguration _configuration;
-    public AuthController(IConfiguration configuration)
+    private readonly IConfiguration _configuration;
+    private readonly RefreshTokenService refreshTokenService;
+    private readonly JWTService jwtService;
+
+    public AuthController(IConfiguration configuration, RefreshTokenService refreshTokenService,JWTService jwtService)
     {
         _configuration = configuration;
+        this.refreshTokenService = refreshTokenService;
+        this.jwtService = jwtService;
     }
     [HttpGet("{Id}")]
+
+    //Нужно подумать, чтобы чел могу получать инфу о себе и тд
     public IActionResult Get(int Id)
     {
         var user = UserService.FindById(Id);
@@ -37,7 +44,19 @@ public class AuthController : ControllerBase
             return Conflict(new { message = "Пользователь с таким логином уже существует" });
         UserService.Add(User);
         RegUser user = new(User);
-        return CreatedAtAction(nameof(Get), new { id = User.Id }, user);
+        string JWTToken = jwtService.GenerateAccesToken(User);
+        string RefreshToken = refreshTokenService.CreateRefreshToken(User.Id);
+        return Ok(new
+        {
+            ///посмотреть ролевую модель айдентити сервер
+            Login = User.Login,
+            Email = User.Email,
+            Role = User.Role,
+            UserType = User.UserType,
+            JWTToken = JWTToken,
+            RefreshToken = RefreshToken
+        });
+
     }
 
     [HttpPost("Authentication")]
@@ -49,18 +68,13 @@ public class AuthController : ControllerBase
         if (!PasswordService.VerifyPassword(request.password, user.Password))
             return Unauthorized(new { message = "Неверный логин/Email или пароль" });
 
-        var JWTServic = new JWTService(_configuration);
-        string JWTtoken = JWTServic.GenerateAccesToken(user);
-        Response.Headers.Append("JWTToken", JWTtoken);
+        string JWTtoken = jwtService.GenerateAccesToken(user);
+        string RefreshToken = refreshTokenService.CreateRefreshToken(user.Id);
 
-        
-        var RefreshServic = new RefreshTokenService(_configuration);
-        string RefreshToken = RefreshServic.CreateRefreshToken(user.Id);
-        Response.Headers.Append("RefreshToken", RefreshToken);
         return Ok(new
         {
             JWTtoken = JWTtoken,
-            RefreshToken=RefreshToken,
+            RefreshToken = RefreshToken,
             user = new
             {
                 Id = user.Id,
@@ -72,37 +86,42 @@ public class AuthController : ControllerBase
 
     }
 
-    [HttpPost("RefreshToken{refreshToken}")]
-    public IActionResult RefreshToken(string refreshToken )
+    // [HttpGet("RefreshToken/Getall")]
+    // public IActionResult GetAllTokens()
+    // {
+    //     return Ok(refreshTokenService.GetAll());
+    // }
+    public class RefreshDto         //Вынести
     {
-    
+        public string RefreshToken { get; set; } = string.Empty;
+    }
 
-
-        if (string.IsNullOrEmpty(refreshToken))
+    //норм
+    [HttpPost("RefreshToken")]
+    public IActionResult RefreshToken(RefreshDto refreshToken )
+    {
+        if (string.IsNullOrEmpty(refreshToken.RefreshToken))
             return Unauthorized(new { message = "RefreshToken отсутствует" });
 
 
-        System.Console.WriteLine($"AAA{RefreshToken}");
-        var storedToken = new RefreshTokenService(_configuration);
-        
-        if (storedToken == null)
-            return Unauthorized(new { message = "Невалидный RefreshToken" });
-        var Token = storedToken.GetRefreshTokenByToken(refreshToken);
+        System.Console.WriteLine($"AAA{refreshToken.RefreshToken}");
+        var Token = refreshTokenService.GetRefreshTokenByToken(refreshToken.RefreshToken);
+        System.Console.WriteLine(Token);
         if (Token is null || !Token.IsActive)
             return Unauthorized(new { message = "Истекший RefreshToken" });
-
+     
         var user = UserService.FindById(Token.UserId);
         if (user is null)
             return Unauthorized(new { message = "Пользователь не найден" });
 
-        var jwtService = new JWTService(_configuration);
+        
+        string NewJWTToken = jwtService.GenerateAccesToken(user);
+        string RefreshToken = refreshTokenService.CreateRefreshToken(user.Id);
 
-        var NewJWTToken = jwtService.GenerateAccesToken(user);
-
-        Response.Headers.Append("JWTToken", NewJWTToken.ToString());
         return Ok(new
         {
             JwtToken = NewJWTToken,
+            RefreshToken = RefreshToken
         });
     }
 
@@ -125,7 +144,8 @@ public class AuthController : ControllerBase
         });
     }
 
-    [HttpPut("Deactivate{Id}")]
+    //ВСЁ ПЕРЕДЕЛАТЬ
+    [HttpPut("Deactivate/{Id}")]
     public IActionResult Deactivate(int Id)
     {
         var user = UserService.FindById(Id);
