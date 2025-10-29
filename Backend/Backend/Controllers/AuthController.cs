@@ -1,7 +1,11 @@
+using System.Threading.Tasks;
+using Backend;
+using Backend.Entities;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 [ApiController]
 [Route("[controller]")]
@@ -10,66 +14,91 @@ public class AuthController : ControllerBase
     private readonly IConfiguration _configuration;
     private readonly RefreshTokenService refreshTokenService;
     private readonly JWTService jwtService;
+    private readonly UserService _userService;
 
-    public AuthController(IConfiguration configuration, RefreshTokenService refreshTokenService,JWTService jwtService)
+    public AuthController(IConfiguration configuration, RefreshTokenService refreshTokenService, JWTService jwtService,UserService userService)
     {
         _configuration = configuration;
         this.refreshTokenService = refreshTokenService;
         this.jwtService = jwtService;
+        this._userService = userService;
     }
-    [HttpGet("{Id}")]
 
-    //Нужно подумать, чтобы чел могу получать инфу о себе и тд
-    public IActionResult Get(int Id)
+    [HttpGet("/me")]
+    [Authorize]
+    public async Task<IActionResult> GetMyProfile()
     {
-        var user = UserService.FindById(Id);
+        var userId = User.FindFirst("UserId")?.Value;
+        if (userId is null)
+            return BadRequest(new { Message = "UserId is not found in token" });
+        var user = await _userService.FindByIdAsync(Guid.Parse(userId));
         if (user is null)
-            return NotFound();
-        RegUser User = new(user);
-        return Ok(User);
-    }
-    [HttpGet]
-    public IActionResult GetAll()
-    {
-        return Ok(UserService.GetAllReg());
-    }
+            return NotFound(new { Message = "User not found" });
+        return Ok(new UserToFront(user));
+
+    }   
+    [HttpGet("check-headers")]
+public IActionResult CheckHeaders()
+{
+    var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+    
+    return Ok(new {
+        AuthHeader = authHeader,
+        HasAuthHeader = !string.IsNullOrEmpty(authHeader),
+        AllHeaders = Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString())
+    });
+}
+    // [HttpGet]
+    // [ForRoles(new List<string>  { "Админский админ" })]
+    // public IActionResult GetAll()
+    // {
+    //     return Ok(UserService.GetAllReg());
+    // }
     [HttpPost("Registration")]
-    public IActionResult Registration(User User)
+    public async Task<IActionResult> Registration(UserEntity User)
     {
         if (!ModelState.IsValid)
             return BadRequest();
-        if (!(UserService.FindByEmail(User.Email) is null))
+        if (!(await _userService.FindByEmailAsync(User.Email) is null))
             return Conflict(new { message = "Пользователь с таким email уже существует" });
-        if (!(UserService.FindByLogin(User.Login) is null))
+        if (!(await _userService.FindByLoginAsync(User.Login) is null))
             return Conflict(new { message = "Пользователь с таким логином уже существует" });
-        UserService.Add(User);
-        RegUser user = new(User);
-        string JWTToken = jwtService.GenerateAccesToken(User);
-        string RefreshToken = refreshTokenService.CreateRefreshToken(User.Id);
-        return Ok(new
+        var result = await _userService.AddAsync(User);
+        if (result)
         {
-            ///посмотреть ролевую модель айдентити сервер
-            Login = User.Login,
-            Email = User.Email,
-            Role = User.Role,
-            UserType = User.UserType,
-            JWTToken = JWTToken,
-            RefreshToken = RefreshToken
-        });
+            
+            string JWTToken = jwtService.GenerateAccesToken(User);
+            string RefreshToken = await refreshTokenService.CreateRefreshToken(User.UserId);
+
+            return Ok(new
+            {
+                ///посмотреть ролевую модель айдентити сервер
+                Login = User.Login,
+                Email = User.Email,
+                Role = User.Role,
+                UserType = User.Type,
+                JWTToken = JWTToken,
+                RefreshToken = RefreshToken
+            });
+        }
+        else
+        {
+            return Conflict(new { message = "Ошибка при добавлении пользователя" });
+        }
 
     }
 
     [HttpPost("Authentication")]
-    public IActionResult Authentication(AuthUser request)
+    public async Task<IActionResult> Authentication(AuthUser request)
     {
-        var user = UserService.FindByEmail(request.LoginOrEmail) ?? UserService.FindByLogin(request.LoginOrEmail);
+        var user = await  _userService.FindByEmailAsync(request.Email);
         if (user is null)
-            return Unauthorized(new { message = "Неверный логин/Email или пароль" });
+            return Unauthorized(new { message = "Неверный Email или пароль" });
         if (!PasswordService.VerifyPassword(request.password, user.Password))
-            return Unauthorized(new { message = "Неверный логин/Email или пароль" });
+            return Unauthorized(new { message = "Неверный Email или пароль" });
 
         string JWTtoken = jwtService.GenerateAccesToken(user);
-        string RefreshToken = refreshTokenService.CreateRefreshToken(user.Id);
+        string RefreshToken = await  refreshTokenService.CreateRefreshToken(user.UserId);
 
         return Ok(new
         {
@@ -77,7 +106,7 @@ public class AuthController : ControllerBase
             RefreshToken = RefreshToken,
             user = new
             {
-                Id = user.Id,
+                Id = user.UserId,
                 Login = user.Login,
                 Email = user.Email,
                 Role = user.Role
@@ -85,38 +114,25 @@ public class AuthController : ControllerBase
         });
 
     }
-
-    // [HttpGet("RefreshToken/Getall")]
-    // public IActionResult GetAllTokens()
-    // {
-    //     return Ok(refreshTokenService.GetAll());
-    // }
-    public class RefreshDto         //Вынести
-    {
-        public string RefreshToken { get; set; } = string.Empty;
-    }
-
-    //норм
     [HttpPost("RefreshToken")]
-    public IActionResult RefreshToken(RefreshDto refreshToken )
+    public async Task<IActionResult> RefreshToken(RefreshDto refreshToken )
     {
         if (string.IsNullOrEmpty(refreshToken.RefreshToken))
             return Unauthorized(new { message = "RefreshToken отсутствует" });
 
 
-        System.Console.WriteLine($"AAA{refreshToken.RefreshToken}");
         var Token = refreshTokenService.GetRefreshTokenByToken(refreshToken.RefreshToken);
         System.Console.WriteLine(Token);
         if (Token is null || !Token.IsActive)
             return Unauthorized(new { message = "Истекший RefreshToken" });
      
-        var user = UserService.FindById(Token.UserId);
+        var user = await  _userService.FindByIdAsync(Token.UserId);
         if (user is null)
             return Unauthorized(new { message = "Пользователь не найден" });
 
         
         string NewJWTToken = jwtService.GenerateAccesToken(user);
-        string RefreshToken = refreshTokenService.CreateRefreshToken(user.Id);
+        string RefreshToken = await  refreshTokenService.CreateRefreshToken(user.UserId);
 
         return Ok(new
         {
@@ -126,17 +142,17 @@ public class AuthController : ControllerBase
     }
 
     [HttpDelete("Delete")]
-    public IActionResult Delete(string email)
+    public async Task<IActionResult> Delete(string email)
     {
-        User? userBd = UserService.FindByEmail(email);
+        UserEntity? userBd = await _userService.FindByEmailAsync(email);
         if (userBd is null)
             return NotFound(new { message = "Такого пользователя не существует" });
-        UserService.Delete(userBd.Id);
+        _userService.Delete(userBd.UserId);
         return Ok(new
         {
             user = new
             {
-                Id = userBd.Id,
+                Id = userBd.UserId,
                 Login = userBd.Login,
                 Email = userBd.Email,
                 Role = userBd.Role
@@ -144,61 +160,7 @@ public class AuthController : ControllerBase
         });
     }
 
-    //ВСЁ ПЕРЕДЕЛАТЬ
-    [HttpPut("Deactivate/{Id}")]
-    public IActionResult Deactivate(int Id)
-    {
-        var user = UserService.FindById(Id);
-        if (user is null)
-            return NotFound();
-        else
-        {
-            if (user.DeletedAt == (new DateTime()))
-            {
-                user.DeletedAt = DateTime.Now;
-                return Ok(new
-                {
-                    Id = user.Id,
-                    DeletedAt = user.DeletedAt
-                });
-            }
-            else
-            {
-                return BadRequest(new
-                {
-                    message = "Пользователь является деактеваированным"
-                });
-            }
-
-        }
-    }
-    [HttpPut("Activate{Id}")]
-    public IActionResult Activate(int Id)
-    {
-        var user = UserService.FindById(Id);
-        if (user is null)
-            return NotFound();
-        else
-        {
-            if (user.DeletedAt == (new DateTime()))
-            {
-                return BadRequest(new
-                {
-                    message = "Пользователь является активированным"
-                });
-                
-            }
-            else
-            {
-                user.DeletedAt = new DateTime();
-                return Ok(new
-                {
-                    Id = user.Id,
-                    DeletedAt = user.DeletedAt
-                });
-            }
-        }
-    }
-}
+  
+ }
 
 

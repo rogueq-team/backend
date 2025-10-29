@@ -12,16 +12,19 @@ public class RefreshTokenService
     static int id = 0;
     static List<RefreshToken> Tokens = new List<RefreshToken>();
     public IConfiguration _configuration;
+    public UserService _userService;
+    
 
-    public RefreshTokenService(IConfiguration cfg)
+    public RefreshTokenService(IConfiguration cfg,UserService usrvs)
     {
         _configuration = cfg;
+        _userService = usrvs;
     }
     //static public RefreshTokenService(IConfiguration conf) => _configuration = conf;
-     public string CreateRefreshToken(int userId)
+     public async Task<string> CreateRefreshToken(Guid  userId)
     {
-        DeleteRefreshTokenById(userId);
-        if (UserService.FindById(userId) is not null)
+        DeleteRefreshTokenByUserId(userId);
+        if ( (await _userService.FindByIdAsync(userId)) is not null)
         {
             double time = 1;
             double.TryParse(_configuration["JWTOptions:Accestimeout"], out time);
@@ -33,7 +36,7 @@ public class RefreshTokenService
                 Expires = DateTime.UtcNow.AddDays(time),
                 CreatedAt = DateTime.UtcNow
             };
-            DeleteRefreshTokenById(userId);
+            DeleteRefreshTokenByUserId(userId);
             Tokens.Add(NewRefreshToken);
             return NewRefreshToken.Token;
 
@@ -44,15 +47,13 @@ public class RefreshTokenService
 
      public List<RefreshToken> GetAll() { return Tokens; }
     
-     public RefreshToken? GetRefreshTokenByUserId(int userId)
+     public RefreshToken? GetRefreshTokenByUserId(Guid userId)
     {
         return Tokens.Find(rf => rf.UserId == userId);
     }
       public RefreshToken? GetRefreshTokenByToken(string token)
     {
         System.Console.WriteLine(token);
-        foreach (var a in Tokens)
-            System.Console.WriteLine($"LSLALA{a.Token}");
         return Tokens.FirstOrDefault(rf => rf.Token == token);
         
     }
@@ -60,7 +61,7 @@ public class RefreshTokenService
     {
         return token.Token;
     }
-     public void DeleteRefreshTokenById(int userId)
+     public void DeleteRefreshTokenByUserId(Guid userId)
     {
         Tokens.RemoveAll(us => us.UserId == userId);
     }

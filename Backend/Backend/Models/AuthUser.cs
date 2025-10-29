@@ -5,8 +5,9 @@ namespace Backend.Models
 {
     public class AuthUser
     {
-        [Required(ErrorMessage = "Логин или Email обязателен")]
-        public string LoginOrEmail { get; set; } = string.Empty;
+        [Required(ErrorMessage = " Email обязателен")]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Пароль обязателен")]
         public string password { get; set; } = string.Empty;

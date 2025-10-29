@@ -6,7 +6,7 @@ namespace Backend.Models
     public class RefreshToken
     {
         public int Id { get; set; } = 0;
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
         public string Token { get; set; } = string.Empty;
         public DateTime Expires { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
