@@ -5,31 +5,36 @@ namespace Backend.Models
 {
     public class User
     {
-        private int id = 0;
-        private string login=string.Empty;
-        private string email=string.Empty;
-        private string role = string.Empty;
-        private string userType = string.Empty;
-        private string password=string.Empty;
+        private int _id = 0;
+        private string _login=string.Empty;
+        private string _email=string.Empty;
+        private string _role = string.Empty;
+        private string _userType = string.Empty;
+        private string _passwordHash = string.Empty;
+        private DateTime _deletedAt = new DateTime();
 
 
         [JsonIgnore]
-        public int Id { get { return id; } set { id=value; } }
+        public int Id { get { return _id; } set { _id=value; } }
 
         [Required(ErrorMessage = "Логин обязателен")]
-        public string Login { get { return login; } set { login = value; } }
+        public string Login { get { return _login; } set { _login = value; } }
 
         [Required]
         [EmailAddress(ErrorMessage = "Неверный формат email")]
-        public string Email { get { return email; ; } set { email = value; } }
+        public string Email { get { return _email; ; } set { _email = value; } }
         
         [Required]
-        public string Role { get { return role; } set { role = value; } }
+        public string Role { get { return _role; } set { _role = value; } }
 
         [Required]
-        public string UserType { get { return userType; } set { userType = value; } }
+        public string UserType { get { return _userType; } set { _userType = value; } }
+        
+       
+        [Required(ErrorMessage = "Пароль обязателен")]
+        public string Password { get { return _passwordHash; } set { _passwordHash = value; } }
 
-        [Required(ErrorMessage ="Пароль обязателен")]
-        public string Password { get{ return password; } set { password = value; } }
+        [JsonIgnore]
+        public DateTime DeletedAt { get { return _deletedAt; } set { _deletedAt = value; } }
     }
 }

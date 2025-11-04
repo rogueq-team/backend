@@ -28,9 +28,10 @@ namespace Backend.Entities
         [Required]
         [MaxLength(255)]
         public string Password { get; set; } = string.Empty;
-
+        [Required]
         public UserRole Role { get; set; } = UserRole.User; //user, admin
 
+        [Required]
         public UserType Type { get; set; } = UserType.Platform; //platform, advertiser, both
         
         [Column(TypeName = "decimal(18,2)")]
@@ -61,5 +62,12 @@ namespace Backend.Entities
 
         [Required]
         public bool IsVerified { get; set; } = false;
+
+        public DateTime? CreatedAt { get; set; }
+
+        public DateTime? UpdatedAt { get; set; }
+
+        public DateTime? DeletedAt { get; set; } 
+
     }
 }
