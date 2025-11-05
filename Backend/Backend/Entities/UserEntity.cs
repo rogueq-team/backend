@@ -40,7 +40,7 @@ namespace Backend.Entities
         // Связи _________________________
         //public List<ApplicationEntity>? Applications { get; set; }
 
-        //public List<DealEntity>? Deals { get; set; }
+        // public List<DealEntity>? Deals { get; set; }
 
         //public List<AdvertiserCategoryEntity>? AdvertiserCategories { get; set; }
 
@@ -68,6 +68,10 @@ namespace Backend.Entities
         public DateTime? UpdatedAt { get; set; }
 
         public DateTime? DeletedAt { get; set; } 
+
+
+        public virtual ICollection<DealEntity>? DealsAsAdvertiser { get; set; }
+        public virtual ICollection<DealEntity>? DealsAsPlatform { get; set; }
 
     }
 }

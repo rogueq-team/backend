@@ -48,35 +48,35 @@ public  class UserService
         return await _db.Users.FirstOrDefaultAsync<UserEntity>(User => User.UserId == id);
     }
 
-        public async Task<bool> AddAsync(UserEntity user)
+    public async Task<bool> AddAsync(UserEntity user)
+    {
+        try
         {
-            try
-            {
-                user.UserId = Guid.NewGuid();
-                user.Password = PasswordService.HashPassword(user.Password);
-                await _db.Users.AddAsync(user);
-                await _db.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($" Ошибка добавления пользователя:");
-                System.Console.WriteLine($"   Сообщение: {ex.Message}");
-                
-                if (ex.InnerException != null)
-                {
-                    System.Console.WriteLine($"   Внутренняя ошибка: {ex.InnerException.Message}");
-                    
-           
-                    if (ex.InnerException.Message.Contains("23505")) 
-                    {
-                        System.Console.WriteLine("  Нарушение уникальности: такой логин или email уже существует");
-                    }
-                }
-                
-                return false;
-            }
+            user.UserId = Guid.NewGuid();
+            user.Password = PasswordService.HashPassword(user.Password);
+            await _db.Users.AddAsync(user);
+            await _db.SaveChangesAsync();
+            return true;
         }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($" Ошибка добавления пользователя:");
+            System.Console.WriteLine($"   Сообщение: {ex.Message}");
+            
+            if (ex.InnerException != null)
+            {
+                System.Console.WriteLine($"   Внутренняя ошибка: {ex.InnerException.Message}");
+                
+         
+                if (ex.InnerException.Message.Contains("23505")) 
+                {
+                    System.Console.WriteLine("  Нарушение уникальности: такой логин или email уже существует");
+                }
+            }
+                
+            return false;
+        }
+    }
 
     public void Delete(Guid id)
     {
@@ -114,7 +114,6 @@ public  class UserService
         existingUser.Bio = updatedUser.Bio;
         existingUser.SocialLinks = updatedUser.SocialLinks;
         existingUser.IsVerified = updatedUser.IsVerified;
-        
   
         existingUser.UpdatedAt = DateTime.UtcNow;
 

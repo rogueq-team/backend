@@ -48,12 +48,7 @@ public IActionResult CheckHeaders()
         AllHeaders = Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString())
     });
 }
-    // [HttpGet]
-    // [ForRoles(new List<string>  { "Админский админ" })]
-    // public IActionResult GetAll()
-    // {
-    //     return Ok(UserService.GetAllReg());
-    // }
+
     [HttpPost("Registration")]
     public async Task<IActionResult> Registration(UserEntity User)
     {
