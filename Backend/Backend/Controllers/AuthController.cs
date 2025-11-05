@@ -32,11 +32,11 @@ public class AuthController : ControllerBase
         return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
     }
 
-    [HttpPost("Authentication")]
-    public IActionResult Authentication(User user)
-    {
-        
-    }
+    //[HttpPost("Authentication")]
+    // public IActionResult Authentication(User user)
+    // {
+
+    // }
 
 }
 

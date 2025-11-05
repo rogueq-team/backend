@@ -1,4 +1,20 @@
+using Backend.context;
+using Backend.Services;
+using Microsoft.EntityFrameworkCore;
+
+
 var builder = WebApplication.CreateBuilder(args);
+
+
+// Database
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("AppDbContext"));
+
+});
+
+builder.Services.AddScoped<ApplicationService>();
+
 
 // Add services to the container.
 
@@ -18,8 +34,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+//app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
+
