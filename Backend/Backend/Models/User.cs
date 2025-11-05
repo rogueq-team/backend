@@ -10,7 +10,8 @@ namespace Backend.Models
         private string _email=string.Empty;
         private string _role = string.Empty;
         private string _userType = string.Empty;
-        private string _passwordHash=string.Empty;
+        private string _passwordHash = string.Empty;
+        private DateTime _deletedAt = new DateTime();
 
 
         [JsonIgnore]
@@ -33,6 +34,7 @@ namespace Backend.Models
         [Required(ErrorMessage = "Пароль обязателен")]
         public string Password { get { return _passwordHash; } set { _passwordHash = value; } }
 
-
+        [JsonIgnore]
+        public DateTime DeletedAt { get { return _deletedAt; } set { _deletedAt = value; } }
     }
 }
