@@ -48,11 +48,6 @@ namespace Backend.Configurations
             builder.Property(a => a.DeletedAt)
                 .HasColumnName("deleted_at");
 
-            // Если есть связь с пользователем — можно добавить (если есть UserEntity)
-            // builder.HasOne<UserEntity>()
-            //     .WithMany()
-            //     .HasForeignKey(a => a.UserId)
-            //     .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
