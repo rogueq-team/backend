@@ -26,6 +26,7 @@ namespace Backend.Entities
         public List<DealEntity>? Deals { get; set; }
 
         public List<ApplicationCategoryEntity>? ApplicationCategories { get; set; }
+        public List<CategoryEntity>? Categories { get; set; }
         // _________________________
     }
 }
