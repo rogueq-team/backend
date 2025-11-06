@@ -125,12 +125,12 @@ public class DealController : ControllerBase
     }
 
     [HttpPost("CreateDeal")]
-    [Authorize("User", "Platform")]
+   [Authorize(roles: new[] { "Admin","User" }, types: new[] { "Platform", "both" })]
     public async Task<IActionResult> CreateDeal(Guid applicationId, string description)
     {
         var application = await _applictionService.FindByIdAsync(applicationId);
         if (application == null)
-            return NotFound(new { Message = "Заявка с таким Id не найденва" });
+            return NotFound(new { Message = "Заявка с таким Id не найдена" });
         var advertiser = await _userService.FindByIdAsync(application.UserId);
         if (advertiser == null)
             return NotFound(new { Message = "Пользователь не найден" });
@@ -142,6 +142,9 @@ public class DealController : ControllerBase
         var platform = await _userService.FindByIdAsync(Guid.Parse(platformId));
         if (platform is null)
             return NotFound(new { Message = "Пользователь не найден" });
+        if (platform.UserId == advertiser.UserId)
+            return BadRequest(new { Massage = "Невозможно принять свою же заявку" });
+        
 
         DealEntity newDeal = new DealEntity { ApplicationId = applicationId, AdvertiserId = advertiser.UserId, PlatformId = Guid.Parse(platformId), Description = description, Advertiser = advertiser, Platform = platform, Status = DealStatus.inProgress };
         bool flag = await _dealService.AddAsync(newDeal);
