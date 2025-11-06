@@ -170,7 +170,7 @@ public class DealController : ControllerBase
             return BadRequest(new { Massage = "Невозможно принять свою же заявку" });
         
 
-        DealEntity newDeal = new DealEntity { ApplicationId = applicationId, AdvertiserId = advertiser.UserId, PlatformId = Guid.Parse(platformId), Description = description, Advertiser = advertiser, Platform = platform, Status = DealStatus.inProgress };
+        DealEntity newDeal = new DealEntity { ApplicationId = applicationId, AdvertiserId = advertiser.UserId, PlatformId = Guid.Parse(platformId), Description = description, Advertiser = advertiser, Platform = platform, Status = DealStatus.InProgress };
         bool flag = await _dealService.AddAsync(newDeal);
         if (flag is true)
             return Ok(new DealDto(newDeal));

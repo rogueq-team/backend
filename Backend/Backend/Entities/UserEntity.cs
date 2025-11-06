@@ -39,17 +39,18 @@ namespace Backend.Entities
         public decimal Balance { get; set; }
 
         // Связи _________________________
-        //public List<ApplicationEntity>? Applications { get; set; }
+        public List<ApplicationEntity>? Applications { get; set; }
 
         // public List<DealEntity>? Deals { get; set; }
 
-        //public List<AdvertiserCategoryEntity>? AdvertiserCategories { get; set; }
+        public List<AdvertiserCategoryEntity>? AdvertiserCategories { get; set; }
 
-        //public List<PlatformCategoryEntity>? PlatformCategories { get; set; }
+        public List<PlatformCategoryEntity>? PlatformCategories { get; set; }
 
-        //public List<MessageEntity>? Messages { get; set; }
+        public List<MessageEntity>? Messages { get; set; }
 
-        //public List<FeedbackEntity>? Feedbacks { get; set; }
+        public List<FeedbackEntity>? SentFeedbacks { get; set; }
+        public List<FeedbackEntity>? ReceivedFeedbacks { get; set; }
         // _________________________
 
         public string? AvatarPath { get; set; }
@@ -66,9 +67,9 @@ namespace Backend.Entities
 
 
         [JsonIgnore]
-        public virtual ICollection<DealEntity>? DealsAsAdvertiser { get; set; }
+        public virtual List<DealEntity>? DealsAsAdvertiser { get; set; }
         [JsonIgnore]
-        public virtual ICollection<DealEntity>? DealsAsPlatform { get; set; }
+        public virtual List<DealEntity>? DealsAsPlatform { get; set; }
 
     }
 }

@@ -2,8 +2,8 @@ namespace Backend.Enums
 {
     public enum DealStatus
     {
-        inProgress = 0,
-        isOver = 1,
-        cancel=2
+        InProgress = 0,
+        Completed = 1,
+        Canceled=2
     }
 }
