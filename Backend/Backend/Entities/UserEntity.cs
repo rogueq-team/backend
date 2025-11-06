@@ -40,15 +40,15 @@ namespace Backend.Entities
         // Связи _________________________
         public List<ApplicationEntity>? Applications { get; set; }
 
-        //public List<DealEntity>? Deals { get; set; }
+        public List<DealEntity>? Deals { get; set; }
 
-        //public List<AdvertiserCategoryEntity>? AdvertiserCategories { get; set; }
+        public List<AdvertiserCategoryEntity>? AdvertiserCategories { get; set; }
 
-        //public List<PlatformCategoryEntity>? PlatformCategories { get; set; }
+        public List<PlatformCategoryEntity>? PlatformCategories { get; set; }
 
-        //public List<MessageEntity>? Messages { get; set; }
+        public List<MessageEntity>? Messages { get; set; }
 
-        //public List<FeedbackEntity>? Feedbacks { get; set; }
+        public List<FeedbackEntity>? Feedbacks { get; set; }
         // _________________________
 
         public string? AvatarPath { get; set; }
