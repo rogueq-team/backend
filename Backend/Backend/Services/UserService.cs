@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Services;
 
-public  class UserService
+public class UserService
 {
     private readonly AppDbContext _db;
 
@@ -17,7 +17,7 @@ public  class UserService
         _db = context;
     }
 
-    public  List<UserEntity> GetAll() => _db.Users.ToList<UserEntity>();
+    public async Task<List<UserEntity>> GetAll() => await _db.Users.ToListAsync<UserEntity>();
     // public static List<RegUser> GetAllReg()
     // {
     //     List<RegUser> RegUsers = new();
@@ -31,10 +31,10 @@ public  class UserService
 
     // }
 
-    public  async Task<UserEntity?> FindByLoginAsync(string? login)
+    public async Task<UserEntity?> FindByLoginAsync(string? login)
     {
         if (string.IsNullOrEmpty(login)) return null;
-        return await _db.Users.FirstOrDefaultAsync<UserEntity>(User => User.Login == login);  
+        return await _db.Users.FirstOrDefaultAsync<UserEntity>(User => User.Login == login);
     }
 
     public async Task<UserEntity?> FindByEmailAsync(string? email)
@@ -42,7 +42,7 @@ public  class UserService
         if (string.IsNullOrEmpty(email)) return null;
         return await _db.Users.FirstOrDefaultAsync<UserEntity>(User => User.Email == email);
     }
-    public  async Task<UserEntity?> FindByIdAsync(Guid id)
+    public async Task<UserEntity?> FindByIdAsync(Guid id)
     {
 
         return await _db.Users.FirstOrDefaultAsync<UserEntity>(User => User.UserId == id);
@@ -62,18 +62,18 @@ public  class UserService
         {
             System.Console.WriteLine($" Ошибка добавления пользователя:");
             System.Console.WriteLine($"   Сообщение: {ex.Message}");
-            
+
             if (ex.InnerException != null)
             {
                 System.Console.WriteLine($"   Внутренняя ошибка: {ex.InnerException.Message}");
-                
-         
-                if (ex.InnerException.Message.Contains("23505")) 
+
+
+                if (ex.InnerException.Message.Contains("23505"))
                 {
                     System.Console.WriteLine("  Нарушение уникальности: такой логин или email уже существует");
                 }
             }
-                
+
             return false;
         }
     }
@@ -88,44 +88,44 @@ public  class UserService
         }
 
     }
-    
-   public async Task<bool> UpdateUserAsync(UserEntity updatedUser)
+
+    public async Task<bool> UpdateUserAsync(UserEntity updatedUser)
     {
-    try
-    {
-        // Находим существующего пользователя
-        UserEntity? existingUser = await _db.Users
-            .FirstOrDefaultAsync(u => u.UserId == updatedUser.UserId);
+        try
+        {
+            // Находим существующего пользователя
+            UserEntity? existingUser = await _db.Users
+                .FirstOrDefaultAsync(u => u.UserId == updatedUser.UserId);
 
             if (existingUser == null)
                 return false;
-            
-        existingUser.Name = updatedUser.Name;
-        existingUser.Login = updatedUser.Login;
-        existingUser.Email = updatedUser.Email;
-        if (!string.IsNullOrEmpty(updatedUser.Password) && 
-            existingUser.Password != updatedUser.Password)
-        {
-            existingUser.Password = PasswordService.HashPassword(updatedUser.Password);
-        }
-        existingUser.Role = updatedUser.Role;
-        existingUser.Type = updatedUser.Type;
-        existingUser.Balance = updatedUser.Balance;
-        existingUser.AvatarPath = updatedUser.AvatarPath;
-        existingUser.Bio = updatedUser.Bio;
-        existingUser.SocialLinks = updatedUser.SocialLinks;
-        existingUser.IsVerified = updatedUser.IsVerified;
-  
-        existingUser.UpdatedAt = DateTime.UtcNow;
 
-        await _db.SaveChangesAsync();
-        return true;
+            existingUser.Name = updatedUser.Name;
+            existingUser.Login = updatedUser.Login;
+            existingUser.Email = updatedUser.Email;
+            if (!string.IsNullOrEmpty(updatedUser.Password) &&
+                existingUser.Password != updatedUser.Password)
+            {
+                existingUser.Password = PasswordService.HashPassword(updatedUser.Password);
+            }
+            existingUser.Role = updatedUser.Role;
+            existingUser.Type = updatedUser.Type;
+            existingUser.Balance = updatedUser.Balance;
+            existingUser.AvatarPath = updatedUser.AvatarPath;
+            existingUser.Bio = updatedUser.Bio;
+            existingUser.SocialLinks = updatedUser.SocialLinks;
+            existingUser.IsVerified = updatedUser.IsVerified;
+
+            existingUser.UpdatedAt = DateTime.UtcNow;
+
+            await _db.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при обновлении пользователя: {ex.Message}");
+            return false;
+        }
     }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Ошибка при обновлении пользователя: {ex.Message}");
-        return false;
-    }
-}
 
 }

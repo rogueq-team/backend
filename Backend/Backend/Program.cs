@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
 using Backend;
 using Backend.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    
+
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
@@ -44,7 +44,7 @@ builder.Services.AddSwaggerGen(options =>
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("AppDbContext")); 
+    options.UseNpgsql(builder.Configuration.GetConnectionString("AppDbContext"));
 
 });
 
@@ -52,6 +52,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<JWTService>();
 builder.Services.AddScoped<RefreshTokenService>();
+builder.Services.AddScoped<ApplicationService>();
 
 // JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -67,8 +68,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             RequireExpirationTime = true,
             ValidateActor = false,
-            RoleClaimType = "Role",                    
-            NameClaimType = "UserId" 
+            RoleClaimType = "Role",
+            NameClaimType = "UserId"
 
         };
         options.Events = new JwtBearerEvents
@@ -76,13 +77,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             OnMessageReceived = context =>
             {
                 var tokenFromHeader = context.Request.Headers["Authorization"].FirstOrDefault();
-                
+
                 if (!string.IsNullOrEmpty(tokenFromHeader))
                 {
-                        context.Token = tokenFromHeader.Trim();                 
+                    context.Token = tokenFromHeader.Trim();
                 }
-                
-                
+
+
                 return Task.CompletedTask;
             },
             OnAuthenticationFailed = context =>

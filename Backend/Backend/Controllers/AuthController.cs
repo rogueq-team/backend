@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Backend;
 using Backend.Entities;
@@ -5,7 +6,6 @@ using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 [ApiController]
 [Route("[controller]")]
@@ -16,7 +16,7 @@ public class AuthController : ControllerBase
     private readonly JWTService jwtService;
     private readonly UserService _userService;
 
-    public AuthController(IConfiguration configuration, RefreshTokenService refreshTokenService, JWTService jwtService,UserService userService)
+    public AuthController(IConfiguration configuration, RefreshTokenService refreshTokenService, JWTService jwtService, UserService userService)
     {
         _configuration = configuration;
         this.refreshTokenService = refreshTokenService;
@@ -36,13 +36,14 @@ public class AuthController : ControllerBase
             return NotFound(new { Message = "User not found" });
         return Ok(new UserToFront(user));
 
-    }   
+    }
     [HttpGet("Check-headers")]
     public IActionResult CheckHeaders()
     {
         var authHeader = Request.Headers["Authorization"].FirstOrDefault();
-        
-        return Ok(new {
+
+        return Ok(new
+        {
             AuthHeader = authHeader,
             HasAuthHeader = !string.IsNullOrEmpty(authHeader),
             AllHeaders = Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString())
@@ -61,7 +62,7 @@ public class AuthController : ControllerBase
         var result = await _userService.AddAsync(User);
         if (result)
         {
-            
+
             string JWTToken = jwtService.GenerateAccesToken(User);
             string RefreshToken = await refreshTokenService.CreateRefreshToken(User.UserId);
 
@@ -115,11 +116,11 @@ public class AuthController : ControllerBase
     [Authorize("Admin")]
     public async Task<IActionResult> GetAll()
     {
-        var listik = _userService.GetAll();
-        return Ok( new { Persons = listik });
+        var listik = await _userService.GetAll();
+        return Ok(new { Persons = listik });
     }
     [HttpPost("RefreshToken")]
-    public async Task<IActionResult> RefreshToken(RefreshDto refreshToken )
+    public async Task<IActionResult> RefreshToken(RefreshDto refreshToken)
     {
         if (string.IsNullOrEmpty(refreshToken.RefreshToken))
             return Unauthorized(new { message = "RefreshToken отсутствует" });
@@ -129,14 +130,14 @@ public class AuthController : ControllerBase
         System.Console.WriteLine(Token);
         if (Token is null || !Token.IsActive)
             return Unauthorized(new { message = "Истекший RefreshToken" });
-     
-        var user = await  _userService.FindByIdAsync(Token.UserId);
+
+        var user = await _userService.FindByIdAsync(Token.UserId);
         if (user is null)
             return Unauthorized(new { message = "Пользователь не найден" });
 
-        
+
         string NewJWTToken = jwtService.GenerateAccesToken(user);
-        string RefreshToken = await  refreshTokenService.CreateRefreshToken(user.UserId);
+        string RefreshToken = await refreshTokenService.CreateRefreshToken(user.UserId);
 
         return Ok(new
         {
@@ -158,14 +159,14 @@ public class AuthController : ControllerBase
             return NotFound(new { message = "Пользователь не найден" });
 
         _userService.Delete(userGuid);
-        
+
         return Ok(new
         {
             user = new { Id = currentUser.UserId, Email = currentUser.Email }
         });
     }
 
-  
- }
+
+}
 
 

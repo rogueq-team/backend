@@ -1,7 +1,7 @@
-﻿using Backend.Entities;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Backend.Configurations;
+using Backend.Entities;
+using Microsoft.EntityFrameworkCore;
 namespace Backend
 
 {
@@ -9,6 +9,8 @@ namespace Backend
     {
         public DbSet<UserEntity> Users { get; set; }
         public DbSet<DealEntity> Deals { get; set; }
+        public DbSet<ApplicationEntity> Applications { get; set; }
+
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -19,9 +21,10 @@ namespace Backend
 
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new DealConfiguration());
-            
-            
-        
+            modelBuilder.ApplyConfiguration(new ApplicationConfiguration());
+
+
+
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Backend.Abstraction
+namespace Backend.Abstraction
 {
     public abstract class BaseEntity
     {

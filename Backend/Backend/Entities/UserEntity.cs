@@ -1,8 +1,8 @@
-﻿using Backend.Abstraction;
-using Backend.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using Backend.Abstraction;
+using Backend.Enums;
 
 namespace Backend.Entities
 {
@@ -34,7 +34,7 @@ namespace Backend.Entities
 
         [Required]
         public UserType Type { get; set; } = UserType.Platform; //platform, advertiser, both
-        
+
         [Column(TypeName = "decimal(18,2)")]
         public decimal Balance { get; set; }
 
@@ -64,16 +64,10 @@ namespace Backend.Entities
         [Required]
         public bool IsVerified { get; set; } = false;
 
-        public DateTime? CreatedAt { get; set; }
-
-        public DateTime? UpdatedAt { get; set; }
-
-        public DateTime? DeletedAt { get; set; } 
-
 
         [JsonIgnore]
         public virtual ICollection<DealEntity>? DealsAsAdvertiser { get; set; }
-         [JsonIgnore]
+        [JsonIgnore]
         public virtual ICollection<DealEntity>? DealsAsPlatform { get; set; }
 
     }

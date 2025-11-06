@@ -1,12 +1,12 @@
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Backend;
 using Backend.Entities;
+using Backend.Enums;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using Backend.Enums;
 [ApiController]
 [Route("[controller]")]
 public class DealController : ControllerBase
@@ -22,7 +22,7 @@ public class DealController : ControllerBase
         this._userService = userService;
     }
 
-    
+
     [HttpGet("GetByApplication/{applicationId}")]
     [Authorize]
     public async Task<IActionResult> GetDealsByApplication(Guid applicationId)
@@ -125,16 +125,16 @@ public class DealController : ControllerBase
     }
 
     [HttpPost("CreateDeal")]
-    [Authorize("User","Platform")]
+    [Authorize("User", "Platform")]
     public async Task<IActionResult> CreateDeal(Guid applicationId, string description)
     {
-        var application = _applictionService.FindById(applicationId);
+        var application = await _applictionService.FindByIdAsync(applicationId);
         if (application == null)
             return NotFound(new { Message = "Заявка с таким Id не найденва" });
-        var advertiser = await _userService.FindByIdAsync(application.AdvertiserId);
+        var advertiser = await _userService.FindByIdAsync(application.UserId);
         if (advertiser == null)
             return NotFound(new { Message = "Пользователь не найден" });
-        if (advertiser.Type == "Advertiser")
+        if (advertiser.Type != UserType.Advertiser)
             return NotFound(new { Message = "В заявке указан неккоректный пользователь" });
         var platformId = User.FindFirst("UserId")?.Value;
         if (platformId is null)
@@ -143,13 +143,13 @@ public class DealController : ControllerBase
         if (platform is null)
             return NotFound(new { Message = "Пользователь не найден" });
 
-        DealEntity newDeal = new DealEntity { ApplicationId = applicationId, AdvertiserId = advertiser.UserId, PlatformId = Guid.Parse(platformId), Description = description, Advertiser = advertiser, Platform = platform,Status="inProgress" };
+        DealEntity newDeal = new DealEntity { ApplicationId = applicationId, AdvertiserId = advertiser.UserId, PlatformId = Guid.Parse(platformId), Description = description, Advertiser = advertiser, Platform = platform, Status = DealStatus.inProgress };
         bool flag = await _dealService.AddAsync(newDeal);
         if (flag is true)
             return Ok(
                     new
                     {
-                        
+
                         DealId = newDeal.DealId,
                         ApplicationId = newDeal.ApplicationId,
                         AdvertiserId = newDeal.AdvertiserId,
@@ -174,7 +174,7 @@ public class DealController : ControllerBase
             );
         else return BadRequest(new { Massage = "Не удалось создать сделку" });
     }
-  
+
 }
 
 
