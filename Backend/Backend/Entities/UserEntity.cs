@@ -38,7 +38,7 @@ namespace Backend.Entities
         public decimal Balance { get; set; }
 
         // Связи _________________________
-        //public List<ApplicationEntity>? Applications { get; set; }
+        public List<ApplicationEntity>? Applications { get; set; }
 
         //public List<DealEntity>? Deals { get; set; }
 
@@ -62,12 +62,6 @@ namespace Backend.Entities
 
         [Required]
         public bool IsVerified { get; set; } = false;
-
-        public DateTime? CreatedAt { get; set; }
-
-        public DateTime? UpdatedAt { get; set; }
-
-        public DateTime? DeletedAt { get; set; } 
 
     }
 }
