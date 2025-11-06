@@ -2,6 +2,7 @@
 using Backend.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Backend.Entities
 {
@@ -70,7 +71,9 @@ namespace Backend.Entities
         public DateTime? DeletedAt { get; set; } 
 
 
+        [JsonIgnore]
         public virtual ICollection<DealEntity>? DealsAsAdvertiser { get; set; }
+         [JsonIgnore]
         public virtual ICollection<DealEntity>? DealsAsPlatform { get; set; }
 
     }

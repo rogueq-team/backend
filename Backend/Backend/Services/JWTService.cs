@@ -18,8 +18,8 @@ public class JWTService
             "UserId", user.UserId.ToString()),
             new ("Email", user.Email),
             new ("login", user.Login),
-            new("Role", (int)user.Role==0?"Admin":"User"),
-            new("UserType", (int)user.Type==0?"Platform":(int)user.Type==1?"Advertiser":"Both")];
+            new("Role", $"{user.Role}"),
+            new("UserType", $"{user.Type}")];
         string key = _configuration["JWTOptions:NoSecretKey"];
         double time = 1;
         double.TryParse(_configuration["JWTOptions:Accestimeout"], out time);

@@ -84,10 +84,11 @@ public  class UserService
         if (user != null)
         {
             user.DeletedAt = DateTime.UtcNow;
-            _db.SaveChanges(); 
+            _db.SaveChanges();
         }
 
     }
+    
    public async Task<bool> UpdateUserAsync(UserEntity updatedUser)
     {
     try

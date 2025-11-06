@@ -22,7 +22,7 @@ public class DealEntity:BaseEntity
     public string? Description { get; set; }
 
     [Required]
-    public string Status { get; set; } //inProgress   isOver 
+    public DealStatus Status { get; set; } //inProgress   isOver    cancel
 
     public virtual Backend.Entities.UserEntity? Advertiser { get; set; }
     public virtual Backend.Entities.UserEntity? Platform { get; set; }

@@ -20,6 +20,7 @@ namespace Backend
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new DealConfiguration());
             
+            
         
         }
     }

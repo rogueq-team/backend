@@ -17,7 +17,7 @@ namespace Backend.Configurations
 
 
             builder.Property(d => d.ApplicationId)
-            .HasColumnName("application_id") // ← Единый стиль
+            .HasColumnName("application_id") 
             .IsRequired();
 
              builder.Property(d => d.AdvertiserId)

@@ -24,7 +24,7 @@ public class AuthController : ControllerBase
         this._userService = userService;
     }
 
-    [HttpGet("/me")]
+    [HttpGet("Me")]
     [Authorize]
     public async Task<IActionResult> GetMyProfile()
     {
@@ -37,17 +37,17 @@ public class AuthController : ControllerBase
         return Ok(new UserToFront(user));
 
     }   
-    [HttpGet("check-headers")]
-public IActionResult CheckHeaders()
-{
-    var authHeader = Request.Headers["Authorization"].FirstOrDefault();
-    
-    return Ok(new {
-        AuthHeader = authHeader,
-        HasAuthHeader = !string.IsNullOrEmpty(authHeader),
-        AllHeaders = Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString())
-    });
-}
+    [HttpGet("Check-headers")]
+    public IActionResult CheckHeaders()
+    {
+        var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+        
+        return Ok(new {
+            AuthHeader = authHeader,
+            HasAuthHeader = !string.IsNullOrEmpty(authHeader),
+            AllHeaders = Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString())
+        });
+    }
 
     [HttpPost("Registration")]
     public async Task<IActionResult> Registration(UserEntity User)
@@ -67,11 +67,10 @@ public IActionResult CheckHeaders()
 
             return Ok(new
             {
-                ///посмотреть ролевую модель айдентити сервер
                 Login = User.Login,
                 Email = User.Email,
-                Role = User.Role,
-                UserType = User.Type,
+                Role = $"{User.Role}",
+                UserType = $"{User.Type}",
                 JWTToken = JWTToken,
                 RefreshToken = RefreshToken
             });
@@ -86,14 +85,16 @@ public IActionResult CheckHeaders()
     [HttpPost("Authentication")]
     public async Task<IActionResult> Authentication(AuthUser request)
     {
-        var user = await  _userService.FindByEmailAsync(request.Email);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        var user = await _userService.FindByEmailAsync(request.Email);
         if (user is null)
             return Unauthorized(new { message = "Неверный Email или пароль" });
         if (!PasswordService.VerifyPassword(request.password, user.Password))
             return Unauthorized(new { message = "Неверный Email или пароль" });
 
         string JWTtoken = jwtService.GenerateAccesToken(user);
-        string RefreshToken = await  refreshTokenService.CreateRefreshToken(user.UserId);
+        string RefreshToken = await refreshTokenService.CreateRefreshToken(user.UserId);
 
         return Ok(new
         {
@@ -104,10 +105,18 @@ public IActionResult CheckHeaders()
                 Id = user.UserId,
                 Login = user.Login,
                 Email = user.Email,
-                Role = user.Role
+                Role = $"{user.Role}",
+                Type = $"{user.Type}"
             }
         });
 
+    }
+    [HttpGet("GetAll")]
+    [Authorize("Admin")]
+    public async Task<IActionResult> GetAll()
+    {
+        var listik = _userService.GetAll();
+        return Ok( new { Persons = listik });
     }
     [HttpPost("RefreshToken")]
     public async Task<IActionResult> RefreshToken(RefreshDto refreshToken )
@@ -137,21 +146,22 @@ public IActionResult CheckHeaders()
     }
 
     [HttpDelete("Delete")]
-    public async Task<IActionResult> Delete(string email)
+    [Authorize]
+    public async Task<IActionResult> Delete()
     {
-        UserEntity? userBd = await _userService.FindByEmailAsync(email);
-        if (userBd is null)
-            return NotFound(new { message = "Такого пользователя не существует" });
-        _userService.Delete(userBd.UserId);
+        var userId = User.FindFirst("UserId")?.Value;
+        if (userId is null || !Guid.TryParse(userId, out var userGuid))
+            return BadRequest(new { message = "Невалидный пользовательский ID" });
+
+        var currentUser = await _userService.FindByIdAsync(userGuid);
+        if (currentUser is null)
+            return NotFound(new { message = "Пользователь не найден" });
+
+        _userService.Delete(userGuid);
+        
         return Ok(new
         {
-            user = new
-            {
-                Id = userBd.UserId,
-                Login = userBd.Login,
-                Email = userBd.Email,
-                Role = userBd.Role
-            }
+            user = new { Id = currentUser.UserId, Email = currentUser.Email }
         });
     }
 
