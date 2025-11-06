@@ -48,7 +48,8 @@ namespace Backend.Entities
 
         public List<MessageEntity>? Messages { get; set; }
 
-        public List<FeedbackEntity>? Feedbacks { get; set; }
+        public List<FeedbackEntity>? SentFeedbacks { get; set; }
+        public List<FeedbackEntity>? ReceivedFeedbacks { get; set; }
         // _________________________
 
         public string? AvatarPath { get; set; }

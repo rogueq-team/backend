@@ -12,9 +12,7 @@ namespace Backend.Entities
         public Guid SenderId { get; set; }
         [Required]
         public Guid RecipientId { get; set; }
-        [Required]
         public UserEntity? Sender { get; set; }
-        [Required]
         public UserEntity? Recipient { get; set; }
         [Required]
         [MaxLength(100)]
