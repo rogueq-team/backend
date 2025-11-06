@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Backend;
+using Backend.DataDto;
 using Backend.Entities;
 using Backend.Enums;
 using Backend.Models;
@@ -124,8 +125,31 @@ public class DealController : ControllerBase
 
     }
 
+
+    [HttpPost("ChangeDescription")]
+    [Authorize]
+    public async Task<IActionResult> ChangeDescription(Guid dealId, string description)
+    {
+        var deal = await _dealService.FindByDealIdAsync(dealId);
+        if (deal == null)
+            return BadRequest(new { Message = "Заявки не существует" });
+        var userId = User.FindFirst("UserId")?.Value;
+        if (userId == null)
+            return BadRequest(new { Message = "Некорректный пользователь" });
+        var user = await _userService.FindByIdAsync(Guid.Parse(userId));
+        if (user is null)
+            return NotFound(new { Message = "Пользователь не найден" });
+        if (deal.AdvertiserId != user.UserId && deal.PlatformId != user.UserId)
+            return BadRequest(new { Message = "Нет доступа к сделке" });
+        deal.Description = description;
+        if ((await _dealService.UpdateDealAsync(deal)) == false)
+            return BadRequest(new { Messge = "Ошибка обновления описания" });
+        return Ok(new DealDto(deal));
+        
+    }
+
     [HttpPost("CreateDeal")]
-   [Authorize(roles: new[] { "Admin","User" }, types: new[] { "Platform", "both" })]
+    [Authorize(roles: new[] { "Admin","User" }, types: new[] { "Platform", "both" })]
     public async Task<IActionResult> CreateDeal(Guid applicationId, string description)
     {
         var application = await _applictionService.FindByIdAsync(applicationId);
@@ -149,32 +173,8 @@ public class DealController : ControllerBase
         DealEntity newDeal = new DealEntity { ApplicationId = applicationId, AdvertiserId = advertiser.UserId, PlatformId = Guid.Parse(platformId), Description = description, Advertiser = advertiser, Platform = platform, Status = DealStatus.inProgress };
         bool flag = await _dealService.AddAsync(newDeal);
         if (flag is true)
-            return Ok(
-                    new
-                    {
-
-                        DealId = newDeal.DealId,
-                        ApplicationId = newDeal.ApplicationId,
-                        AdvertiserId = newDeal.AdvertiserId,
-                        PlatformId = newDeal.PlatformId,
-                        Description = newDeal.Description,
-                        Status = newDeal.Status,
-                        CreatedDate = newDeal.CreatedAt,
-                        Advertiser = new
-                        {
-                            newDeal.Advertiser.UserId,
-                            newDeal.Advertiser.Name,
-                            newDeal.Advertiser.Email
-                        },
-                        Platform = new
-                        {
-                            newDeal.Platform.UserId,
-                            newDeal.Platform.Name,
-                            newDeal.Platform.Email
-                        }
-
-                    }
-            );
+            return Ok(new DealDto(newDeal));
+                    
         else return BadRequest(new { Massage = "Не удалось создать сделку" });
     }
 
