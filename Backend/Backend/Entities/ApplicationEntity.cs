@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Backend.Abstraction;
+using Backend.Enums;
 
 namespace Backend.Entities
 {
@@ -19,13 +20,12 @@ namespace Backend.Entities
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Сумма должна быть положительной")]
         public decimal Cost { get; set; }
 
         [Required]
-        [MaxLength(50)]
-        [RegularExpression("New|InProgress|Completed|Cancelled",
-            ErrorMessage = "Статус может быть только New, InProgress, Completed или Cancelled")]
-        public string Status { get; set; } = "New";
+        public ApplicationStatus Status { get; set; } = ApplicationStatus.InProgress;
+
 
     }
 }

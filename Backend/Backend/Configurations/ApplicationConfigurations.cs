@@ -32,8 +32,6 @@ namespace Backend.Configurations
 
             builder.Property(a => a.Status)
                 .HasColumnName("status")
-                .HasMaxLength(50)
-                .HasDefaultValue("New")
                 .IsRequired();
 
             builder.Property(a => a.CreatedAt)
