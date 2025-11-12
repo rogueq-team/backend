@@ -51,14 +51,15 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("Registration")]
-    public async Task<IActionResult> Registration(UserEntity User)
+    public async Task<IActionResult> Registration(FrontToUser FUser)
     {
         if (!ModelState.IsValid)
             return BadRequest();
-        if (!(await _userService.FindByEmailAsync(User.Email) is null))
+        if (!(await _userService.FindByEmailAsync(FUser.Email) is null))
             return Conflict(new { message = "Пользователь с таким email уже существует" });
-        if (!(await _userService.FindByLoginAsync(User.Login) is null))
+        if (!(await _userService.FindByLoginAsync(FUser.Login) is null))
             return Conflict(new { message = "Пользователь с таким логином уже существует" });
+        UserEntity User = new UserEntity(FUser);
         var result = await _userService.AddAsync(User);
         if (result)
         {

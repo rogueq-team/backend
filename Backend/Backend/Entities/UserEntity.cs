@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Backend.Abstraction;
 using Backend.Enums;
+using Backend.Models;
 
 namespace Backend.Entities
 {
@@ -71,5 +72,28 @@ namespace Backend.Entities
         [JsonIgnore]
         public virtual List<DealEntity>? DealsAsPlatform { get; set; }
 
+        public UserEntity() { }
+        public UserEntity(FrontToUser FUser)
+        {
+            UserId = Guid.NewGuid();
+            Login = FUser.Login;
+            Email = FUser.Email;
+            Password = FUser.Password;
+            Role = FUser.Role;
+            Type = FUser.Type;
+            Balance = 0;
+            Applications = null;
+            AdvertiserCategories = null;
+            PlatformCategories = null;
+            Messages = null;
+            SentFeedbacks = null;
+            ReceivedFeedbacks = null;
+            AvatarPath = null;
+            Bio = null;
+            SocialLinks = null;
+            DealsAsAdvertiser = null;
+            DealsAsPlatform = null;
+
+        }
     }
 }
