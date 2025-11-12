@@ -85,28 +85,40 @@ namespace Backend.Configurations
             .HasColumnName("deleted_at");
             //это на потом, тут будут связи с другими таблицами
 
-            //builder.HasMany(u => u.Applications)
-            //    .WithOne() //позже
-            //    .HasForeignKey("user_id");
+            builder.HasMany(u => u.Applications)
+                .WithOne()
+                .HasForeignKey(a => a.UserId);
 
+           /* builder.HasMany(u => u.Messages)
+                .WithOne(m => m.User)
+                .HasForeignKey(a => a.UserId);*/
 
-            //builder.HasMany(u => u.AdvertiserCategories)
-            //    .WithMany() //позже
-            //    .UsingEntity(j => j.ToTable("advertiser_categories"));
+            builder.HasMany(u => u.SentFeedbacks)
+                .WithOne(f => f.Sender)
+                .HasForeignKey(a => a.SenderId);
 
-            //builder.HasMany(u => u.PlatformCategories)
-            //    .WithMany() //позже
-            //    .UsingEntity(j => j.ToTable("platform_categories"));
+            builder.HasMany(u => u.ReceivedFeedbacks)
+                .WithOne(f => f.Recipient)
+                .HasForeignKey(a => a.RecipientId);
 
-        builder.HasMany(u => u.DealsAsAdvertiser)
-        .WithOne(d => d.Advertiser)
-        .HasForeignKey(d => d.AdvertiserId)
-        .OnDelete(DeleteBehavior.Restrict); // Чтобы не удалялись сделки при удалении пользователя
+            builder.HasMany(u => u.DealsAsAdvertiser)
+            .WithOne(d => d.Advertiser)
+            .HasForeignKey(d => d.AdvertiserId)
+            .OnDelete(DeleteBehavior.Restrict); // Чтобы не удалялись сделки при удалении пользователя
 
-        builder.HasMany(u => u.DealsAsPlatform)
-        .WithOne(d => d.Platform)
-        .HasForeignKey(d => d.PlatformId)
-        .OnDelete(DeleteBehavior.Restrict);
+            builder.HasMany(u => u.DealsAsPlatform)
+            .WithOne(d => d.Platform)
+            .HasForeignKey(d => d.PlatformId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            /*builder.HasMany(u => u.AdvertiserCategories)
+                .WithOne(c => c.Advertiser)
+                .HasForeignKey(c => c.AdvertiserId);*/
+
+            /*builder.HasMany(u => u.PlatformCategories)
+                .WithOne(c => c.Platform)
+                .HasForeignKey(c => c.PlatformId);
+                */
         }
     }
 }

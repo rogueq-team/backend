@@ -16,9 +16,9 @@ namespace Backend.Entities
         public UserEntity? Recipient { get; set; }
         [Required]
         [MaxLength(100)]
-        public string? Text { get; set; }
+        public string Text { get; set; } = string.Empty;
         [Required]
         [Range(0, 5, ErrorMessage = "Количество звёзд должно быть от 1 до 5")]
-        public int? Stars { get; set; }
+        public int Stars { get; set; } = 0;
     }
 }

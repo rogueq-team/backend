@@ -14,7 +14,7 @@ namespace Backend.Entities
         public Guid DealId { get; set; }
 
         [Required]
-        public virtual DealEntity? DealEntity { get; set; }
+        public virtual DealEntity? Deal { get; set; }
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]
