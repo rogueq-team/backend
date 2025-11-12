@@ -33,7 +33,7 @@ namespace Backend.Services
         public async Task<List<ApplicationEntity>> FindByStatusAsync(string status)
         {
             return await _context.Applications
-                .Where(a => a.Status.ToLower() == status.ToLower() && a.DeletedAt == null)
+                .Where(a => a.Status.ToString().ToLower() == status.ToLower() && a.DeletedAt == null)
                 .ToListAsync();
         }
 

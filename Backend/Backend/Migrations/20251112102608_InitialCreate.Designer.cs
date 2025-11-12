@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251106194007_SafeInitialCreate")]
-    partial class SafeInitialCreate
+    [Migration("20251112102608_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,7 +57,7 @@ namespace Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
-                        .HasDefaultValue("New")
+                        .HasDefaultValue("InProgress")
                         .HasColumnName("status");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -72,7 +72,56 @@ namespace Backend.Migrations
 
                     b.HasKey("ApplicationId");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("applications", (string)null);
+                });
+
+            modelBuilder.Entity("Backend.Entities.FeedbackEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("feedback_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid>("RecipientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("recipient_id");
+
+                    b.Property<Guid>("SenderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sender_id");
+
+                    b.Property<int>("Stars")
+                        .HasColumnType("integer")
+                        .HasColumnName("stars")
+                        .HasAnnotation("Range", new[] { 0, 5 });
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecipientId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("feedbacks", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Entities.UserEntity", b =>
@@ -210,11 +259,45 @@ namespace Backend.Migrations
                     b.ToTable("deals", (string)null);
                 });
 
+            modelBuilder.Entity("Backend.Entities.ApplicationEntity", b =>
+                {
+                    b.HasOne("Backend.Entities.UserEntity", null)
+                        .WithMany("Applications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Backend.Entities.FeedbackEntity", b =>
+                {
+                    b.HasOne("Backend.Entities.UserEntity", "Recipient")
+                        .WithMany("ReceivedFeedbacks")
+                        .HasForeignKey("RecipientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Backend.Entities.UserEntity", "Sender")
+                        .WithMany("SentFeedbacks")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Recipient");
+
+                    b.Navigation("Sender");
+                });
+
             modelBuilder.Entity("DealEntity", b =>
                 {
                     b.HasOne("Backend.Entities.UserEntity", "Advertiser")
                         .WithMany("DealsAsAdvertiser")
                         .HasForeignKey("AdvertiserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Backend.Entities.ApplicationEntity", "Application")
+                        .WithMany("Deals")
+                        .HasForeignKey("ApplicationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -226,14 +309,27 @@ namespace Backend.Migrations
 
                     b.Navigation("Advertiser");
 
+                    b.Navigation("Application");
+
                     b.Navigation("Platform");
+                });
+
+            modelBuilder.Entity("Backend.Entities.ApplicationEntity", b =>
+                {
+                    b.Navigation("Deals");
                 });
 
             modelBuilder.Entity("Backend.Entities.UserEntity", b =>
                 {
+                    b.Navigation("Applications");
+
                     b.Navigation("DealsAsAdvertiser");
 
                     b.Navigation("DealsAsPlatform");
+
+                    b.Navigation("ReceivedFeedbacks");
+
+                    b.Navigation("SentFeedbacks");
                 });
 #pragma warning restore 612, 618
         }

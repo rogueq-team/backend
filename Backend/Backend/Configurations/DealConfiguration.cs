@@ -51,6 +51,15 @@ namespace Backend.Configurations
             .HasForeignKey(d => d.PlatformId)
             .OnDelete(DeleteBehavior.Restrict)
             .IsRequired();
+
+            builder.HasOne(d => d.Transaction)
+                .WithOne(t => t.Deal)
+                .HasForeignKey<TransactionEntity>(t => t.DealId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            /*builder.HasMany(d => d.Messages)
+                .WithOne(m => m.Deal)
+                .HasForeignKey(d => d.DealId);*/
             
             builder.HasIndex(d => d.AdvertiserId);
             builder.HasIndex(d => d.PlatformId);
