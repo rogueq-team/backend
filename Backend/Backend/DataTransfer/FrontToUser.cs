@@ -13,7 +13,7 @@ namespace Backend.Models
         [Required]
         public string Login { get; set; } = string.Empty;
         [Required]
-        [EmailAddress]
+         [EmailAddress]
         public string Email { get; set; } = string.Empty;
         [Required]
         [MaxLength(255)]

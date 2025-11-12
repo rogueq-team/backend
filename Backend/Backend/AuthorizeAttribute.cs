@@ -50,8 +50,8 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
 
         if (_types != null && _types.Length > 0)
         {
-            var userType = user.FindFirst("type")?.Value;
-            var hasRequiredType = _types.Contains(userType);
+            var userType = user.FindFirst("UserType")?.Value;
+            var hasRequiredType = _types.Any(type => type == userType);
 
             if (!hasRequiredType)
             {

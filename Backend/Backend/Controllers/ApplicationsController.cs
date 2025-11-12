@@ -2,7 +2,8 @@ using Backend.Entities;
 using Backend.Enums;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
-
+using Backend.Models;
+using Microsoft.AspNetCore.Components.Web;
 namespace Backend.Controllers
 {
     [Authorize]
@@ -33,7 +34,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost("CreateApp")]
-        public async Task<IActionResult> Create(ApplicationEntity application)
+        public async Task<IActionResult> Create(FrontToApp Fapplication)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -54,17 +55,18 @@ namespace Backend.Controllers
             if (roleClaim != "Admin" && !(typeClaim == "Advertiser" || typeClaim == "Both"))
                 return StatusCode(403, "У вас нет прав на создание заявки");
 
-            if (application.Cost <= 0)
+            if (Fapplication.Cost <= 0)
                 return BadRequest(new { Message = "Сумма заявки должна быть положительной" });
 
-            if (!Enum.IsDefined(typeof(ApplicationStatus), application.Status))
+            if (!Enum.IsDefined(typeof(ApplicationStatus), Fapplication.Status))
                 return BadRequest(new { Message = "Статус заявки некорректен. Допустимые значения: 0, 1, 2" });
 
-            application.UserId = userId;
+            Fapplication.UserId = userId;
 
-            if (application.Status == 0)
-                application.Status = ApplicationStatus.InProgress;
+            if (Fapplication.Status == 0)
+                Fapplication.Status = ApplicationStatus.InProgress;
 
+            ApplicationEntity application = new ApplicationEntity(Fapplication);
             var created = await _service.AddAsync(application);
             return CreatedAtAction(nameof(Get), new { id = created.ApplicationId }, created);
         }

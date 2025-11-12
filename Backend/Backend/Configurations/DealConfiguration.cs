@@ -34,6 +34,7 @@ namespace Backend.Configurations
 
             builder.Property(d => d.Status)
             .HasColumnName("status")
+            .HasConversion<string>()
             .HasMaxLength(100);
 
             builder.Property(d => d.CreatedAt)

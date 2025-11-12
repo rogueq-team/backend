@@ -53,6 +53,7 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<JWTService>();
 builder.Services.AddScoped<RefreshTokenService>();
 builder.Services.AddScoped<ApplicationService>();
+builder.Services.AddScoped<DealService>();
 
 // JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

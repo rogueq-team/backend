@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Backend.Abstraction;
 using Backend.Enums;
+using Backend.Models;
 
 namespace Backend.Entities
 {
@@ -34,5 +35,19 @@ namespace Backend.Entities
         public List<ApplicationCategoryEntity>? ApplicationCategories { get; set; }
         public List<CategoryEntity>? Categories { get; set; }
         // _________________________
+
+        public ApplicationEntity() { }
+
+        public ApplicationEntity(FrontToApp FApp)
+        {
+            ApplicationId = Guid.NewGuid();
+            UserId = FApp.UserId;
+            Description = FApp.Description;
+            Cost = FApp.Cost;
+            Deals = null;
+            ApplicationCategories = null;
+            Categories = null;
+            
+        }
     }
 }
