@@ -76,6 +76,7 @@ namespace Backend.Entities
         public UserEntity(FrontToUser FUser)
         {
             UserId = Guid.NewGuid();
+            Name = FUser.Name;
             Login = FUser.Login;
             Email = FUser.Email;
             Password = FUser.Password;

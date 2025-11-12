@@ -1,5 +1,6 @@
 using System.Reflection.Metadata;
 using Backend.Entities;
+using Backend.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,8 +33,11 @@ namespace Backend.Services
         // поиск по статусу
         public async Task<List<ApplicationEntity>> FindByStatusAsync(string status)
         {
+            if (!Enum.TryParse<ApplicationStatus>(status, true, out var parsedStatus))
+                throw new ArgumentException("Некорректный статус");
+
             return await _context.Applications
-                .Where(a => a.Status.ToString().ToLower() == status.ToLower() && a.DeletedAt == null)
+                .Where(a => a.Status == parsedStatus && a.DeletedAt == null)
                 .ToListAsync();
         }
 
@@ -56,10 +60,13 @@ namespace Backend.Services
         }
 
         // обновление существующей заявки
-        public async Task<bool> UpdateAsync(ApplicationEntity updated)
+        public async Task<bool> UpdateAsync(Guid id, ApplicationEntity updated, Guid userId, string userRole)
         {
-            var existing = await FindByIdAsync(updated.ApplicationId);
+            var existing = await FindByIdAsync(id);
             if (existing == null) return false;
+
+            if (userRole != "Admin" && existing.UserId != userId)
+                return false;
 
             existing.Description = updated.Description;
             existing.Cost = updated.Cost;
@@ -70,11 +77,24 @@ namespace Backend.Services
             return true;
         }
 
+        // заявки по ид
+        public async Task<List<ApplicationEntity>> GetByUserIdAsync(Guid userId)
+        {
+            return await _context.Applications
+                                 .Where(a => a.UserId == userId)
+                                 .Where(a => a.DeletedAt == null)
+                                 .ToListAsync();
+        }
+
+
         // мягкое удаление
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id, Guid userId, string userRole)
         {
             var existing = await FindByIdAsync(id);
             if (existing == null) return false;
+
+            if (userRole != "Admin" && existing.UserId != userId)
+                return false;
 
             existing.DeletedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();

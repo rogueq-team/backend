@@ -2,6 +2,8 @@
 using Backend.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Backend.Abstraction;
+using Backend.Enums;
 
 namespace Backend.Entities
 {
