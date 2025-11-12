@@ -99,7 +99,7 @@ namespace Backend.Migrations
                     advertiser_id = table.Column<Guid>(type: "uuid", nullable: false),
                     platform_id = table.Column<Guid>(type: "uuid", nullable: false),
                     description = table.Column<string>(type: "character varying(600)", maxLength: 600, nullable: true),
-                    status = table.Column<int>(type: "integer", maxLength: 100, nullable: false),
+                    status = table.Column<string>(type: "character varying(50)", maxLength: 100, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)

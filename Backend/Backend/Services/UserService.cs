@@ -90,13 +90,12 @@ public class UserService
 
     }
 
-    public async Task<bool> UpdateUserAsync(UserEntity updatedUser)
+    public async Task<bool> UpdateUserAsync(UserControllerDTO updatedUser, Guid UserID)
     {
         try
         {
-            // Находим существующего пользователя
             UserEntity? existingUser = await _db.Users
-                .FirstOrDefaultAsync(u => u.UserId == updatedUser.UserId);
+                .FirstOrDefaultAsync(u => u.UserId == UserID);
 
             if (existingUser == null)
                 return false;
@@ -104,19 +103,11 @@ public class UserService
             existingUser.Name = updatedUser.Name;
             existingUser.Login = updatedUser.Login;
             existingUser.Email = updatedUser.Email;
-            if (!string.IsNullOrEmpty(updatedUser.Password) &&
-                existingUser.Password != updatedUser.Password)
-            {
-                existingUser.Password = PasswordService.HashPassword(updatedUser.Password);
-            }
             existingUser.Role = updatedUser.Role;
             existingUser.Type = updatedUser.Type;
             existingUser.Balance = updatedUser.Balance;
             existingUser.AvatarPath = updatedUser.AvatarPath;
             existingUser.Bio = updatedUser.Bio;
-            existingUser.SocialLinks = updatedUser.SocialLinks;
-            existingUser.IsVerified = updatedUser.IsVerified;
-
             existingUser.UpdatedAt = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();
@@ -128,5 +119,27 @@ public class UserService
             return false;
         }
     }
+    
+    
+    public async Task<bool> UpdateUserAsync(UserEntity updatedUser)
+    {
+        try
+        {
+            UserEntity? existingUser = await _db.Users
+                .FirstOrDefaultAsync(u => u.UserId == updatedUser.UserId);
 
+            if (existingUser == null)
+                return false;
+
+            existingUser = updatedUser;
+
+            await _db.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при обновлении пользователя: {ex.Message}");
+            return false;
+        }
+    }
 }

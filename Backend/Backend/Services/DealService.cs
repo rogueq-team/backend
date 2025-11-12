@@ -21,7 +21,10 @@ public class DealService
 
     public async Task<DealEntity?> FindByDealIdAsync(Guid dealId)
     {
-        return await _db.Deals.FirstOrDefaultAsync<DealEntity>(deal => deal.DealId == dealId);
+        return await _db.Deals
+        .Include(d => d.Advertiser)  
+        .Include(d => d.Platform)    
+        .FirstOrDefaultAsync(d => d.DealId == dealId);
     }
     public async Task<List<DealEntity>> FindByApplicationIdAsync(Guid applicationId)
     {

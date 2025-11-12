@@ -60,7 +60,6 @@ namespace Backend.Models
             Balance = user.Balance;
             AvatarPath = user.AvatarPath;
             Bio = user.Bio;
-            SocialLinks = user.SocialLinks;
             IsVerified = user.IsVerified;
             CreatedAt = user.CreatedAt;
             UpdatedAt = user.UpdatedAt;

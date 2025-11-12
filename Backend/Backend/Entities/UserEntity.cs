@@ -71,7 +71,7 @@ namespace Backend.Entities
         public virtual List<DealEntity>? DealsAsAdvertiser { get; set; }
         [JsonIgnore]
         public virtual List<DealEntity>? DealsAsPlatform { get; set; }
-
+          
         public UserEntity() { }
         public UserEntity(FrontToUser FUser)
         {
@@ -91,6 +91,28 @@ namespace Backend.Entities
             ReceivedFeedbacks = null;
             AvatarPath = null;
             Bio = null;
+            SocialLinks = null;
+            DealsAsAdvertiser = null;
+            DealsAsPlatform = null;
+
+        }
+        public UserEntity(UserControllerDTO UserDTO)
+        {
+            UserId = Guid.NewGuid();
+            Name = UserDTO.Name;
+            Login = UserDTO.Login;
+            Email = UserDTO.Email;
+            Role = UserDTO.Role;
+            Type = UserDTO.Type;
+            Balance = UserDTO.Balance;
+            Applications = null;
+            AdvertiserCategories = null;
+            PlatformCategories = null;
+            Messages = null;
+            SentFeedbacks = null;
+            ReceivedFeedbacks = null;
+            AvatarPath = UserDTO.AvatarPath;
+            Bio = UserDTO.Bio;
             SocialLinks = null;
             DealsAsAdvertiser = null;
             DealsAsPlatform = null;
