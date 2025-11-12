@@ -54,6 +54,8 @@ public class UserService
         {
             user.UserId = Guid.NewGuid();
             user.Password = PasswordService.HashPassword(user.Password);
+            user.UpdatedAt=user.CreatedAt = DateTime.UtcNow;
+            
             await _db.Users.AddAsync(user);
             await _db.SaveChangesAsync();
             return true;
