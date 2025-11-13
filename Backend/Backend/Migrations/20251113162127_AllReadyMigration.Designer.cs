@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251113161727_AllReadyMigration")]
+    [Migration("20251113162127_AllReadyMigration")]
     partial class AllReadyMigration
     {
         /// <inheritdoc />
