@@ -7,7 +7,7 @@ namespace Backend.Entities
         [Required]
         public Guid AdvertiserId { get; set; }
         [Required]
-        public Guid CategotyId { get; set; }
+        public Guid CategoryId { get; set; }
         [Required]
         public UserEntity? Advertiser { get; set; }
         [Required]

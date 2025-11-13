@@ -41,10 +41,10 @@ namespace Backend.Entities
         // Связи _________________________
         public List<ApplicationEntity>? Applications { get; set; }
 
-        // public List<DealEntity>? Deals { get; set; }
-
+        //public List<DealEntity>? Deals { get; set; }
+        [NotMapped]
         public List<AdvertiserCategoryEntity>? AdvertiserCategories { get; set; }
-
+        [NotMapped]
         public List<PlatformCategoryEntity>? PlatformCategories { get; set; }
 
         public List<MessageEntity>? Messages { get; set; }

@@ -7,7 +7,7 @@ namespace Backend.Entities
         [Required]
         public Guid PlatformId { get; set; }
         [Required]
-        public Guid CategotyId { get; set; }
+        public Guid CategoryId { get; set; }
         [Required]
         public UserEntity? Platform { get; set; }
         [Required]

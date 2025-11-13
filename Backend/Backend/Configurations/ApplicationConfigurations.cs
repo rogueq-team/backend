@@ -60,6 +60,12 @@ namespace Backend.Configurations
                 .HasForeignKey(d => d.ApplicationId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasMany(a => a.ApplicationCategories)
+                .WithOne(ac => ac.Application)
+                .HasForeignKey(ac => ac.ApplicationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
             /*builder.HasMany(a => a.Categories)
                 .WithMany(c => c.ApplicationEntities)
                 .UsingEntity<ApplicationCategoryEntity>(
