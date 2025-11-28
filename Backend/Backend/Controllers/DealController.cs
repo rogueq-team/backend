@@ -53,7 +53,19 @@ public class DealController : ControllerBase
             Status = deal.Status,
             CreatedDate = deal.CreatedAt,
             AdvertiserName = deal.Advertiser?.Name,
-            PlatformName = deal.Platform?.Name
+            PlatformName = deal.Platform?.Name,
+                        Advertiser = new
+            {
+                deal.Advertiser.UserId,
+                deal.Advertiser.Name,
+                deal.Advertiser.Email
+            },
+            Platform = new
+            {
+                deal.Platform.UserId,
+                deal.Platform.Name,
+                deal.Platform.Email
+            }
         }));
     }
 
@@ -63,17 +75,17 @@ public class DealController : ControllerBase
     {
         var userId = User.FindFirst("UserId")?.Value;
         if (userId is null)
-            return BadRequest(new { Message = "Некоректный пользователь" });
+            return BadRequest(new { message = "Некоректный пользователь" });
         var user = await _userService.FindByIdAsync(Guid.Parse(userId));
         if (user is null)
-            return NotFound(new { Message = "Пользователь не найден" });
+            return NotFound(new { message = "Пользователь не найден" });
 
 
         var deal = await _dealService.FindByDealIdAsync(dealId);
         if (deal == null)
-            return NotFound(new { Message = "Сделка не найдена" });
+            return NotFound(new { message = "Сделка не найдена" });
         if (!(Guid.Parse(userId) == deal.AdvertiserId && user.Type == UserType.Advertiser || Guid.Parse(userId) == deal.PlatformId && user.Type == UserType.Platform || user.Role == UserRole.Admin))
-            return BadRequest(new { Massage = "Недостаточно прав доступа" });
+            return BadRequest(new { message = "Недостаточно прав доступа" });
 
         return Ok(new
         {
@@ -105,18 +117,18 @@ public class DealController : ControllerBase
     {
         var userId = User.FindFirst("UserId")?.Value;
         if (userId is null)
-            return BadRequest(new { Message = "Некорректный пользователь" });
+            return BadRequest(new { message = "Некорректный пользователь" });
         var user = await _userService.FindByIdAsync(Guid.Parse(userId));
         if (user is null)
-            return NotFound(new { Message = "Пользователь не найден" });
+            return NotFound(new { message = "Пользователь не найден" });
         var deal = await _dealService.FindByDealIdAsync(dealId);
         if (deal == null)
-            return BadRequest(new { Massage = "Сделки не существует или данный пользователь не имеет к ней доступа" });
+            return BadRequest(new { message = "Сделки не существует или данный пользователь не имеет к ней доступа" });
         if (!(deal.ApplicationId == user.UserId || deal.PlatformId == user.UserId))
-            return BadRequest(new { Massage = "Сделки не существует или данный пользователь не имеет к ней доступа" });
+            return BadRequest(new { message = "Сделки не существует или данный пользователь не имеет к ней доступа" });
 
         if (false == await _dealService.ChangeStatusById(dealId, status))
-            return BadRequest(new { Massage = "Невозможный статус" });
+            return BadRequest(new { message = "Невозможный статус" });
         return Ok(new
         {
             dealID = deal.DealId,
@@ -144,7 +156,28 @@ public class DealController : ControllerBase
         deal.Description = description;
         if ((await _dealService.UpdateDealAsync(deal)) == false)
             return BadRequest(new { Messge = "Ошибка обновления описания" });
-        return Ok(new DealDto(deal));
+        return Ok(new
+        {
+            DealId = deal.DealId,
+            ApplicationId = deal.ApplicationId,
+            AdvertiserId = deal.AdvertiserId,
+            PlatformId = deal.PlatformId,
+            Description = deal.Description,
+            Status = deal.Status,
+            CreatedDate = deal.CreatedAt,
+            Advertiser = new
+            {
+                deal.Advertiser.UserId,
+                deal.Advertiser.Name,
+                deal.Advertiser.Email
+            },
+            Platform = new
+            {
+                deal.Platform.UserId,
+                deal.Platform.Name,
+                deal.Platform.Email
+            }
+        });
         
     }
 
@@ -154,28 +187,51 @@ public class DealController : ControllerBase
     {
         var application = await _applictionService.FindByIdAsync(applicationId);
         if (application == null)
-            return NotFound(new { Message = "Заявка с таким Id не найдена" });
+            return NotFound(new { message = "Заявка с таким Id не найдена" });
         var advertiser = await _userService.FindByIdAsync(application.UserId);
         if (advertiser == null)
-            return NotFound(new { Message = "Пользователь не найден" });
+            return NotFound(new { message = "Пользователь не найден" });
         if (advertiser.Type != UserType.Advertiser)
-            return NotFound(new { Message = "В заявке указан неккоректный пользователь" });
+            return NotFound(new { message = "В заявке указан неккоректный пользователь" });
         var platformId = User.FindFirst("UserId")?.Value;
         if (platformId is null)
-            return BadRequest(new { Message = "Некоректный пользователь" });
+            return BadRequest(new { message = "Некоректный пользователь" });
         var platform = await _userService.FindByIdAsync(Guid.Parse(platformId));
         if (platform is null)
-            return NotFound(new { Message = "Пользователь не найден" });
+            return NotFound(new { message = "Пользователь не найден" });
         if (platform.UserId == advertiser.UserId)
-            return BadRequest(new { Massage = "Невозможно принять свою же заявку" });
+            return BadRequest(new { message = "Невозможно принять свою же заявку" });
         
-
+       
         DealEntity newDeal = new DealEntity { ApplicationId = applicationId, AdvertiserId = advertiser.UserId, PlatformId = Guid.Parse(platformId), Description = description, Advertiser = advertiser, Platform = platform, Status = DealStatus.InProgress };
+         application.Deals.Add(newDeal);
+
         bool flag = await _dealService.AddAsync(newDeal);
         if (flag is true)
-            return Ok(new DealDto(newDeal));
+            return Ok(new
+        {
+            DealId = newDeal.DealId,
+            ApplicationId = newDeal.ApplicationId,
+            AdvertiserId = newDeal.AdvertiserId,
+            PlatformId = newDeal.PlatformId,
+            Description = newDeal.Description,
+            Status = newDeal.Status,
+            CreatedDate = newDeal.CreatedAt,
+            Advertiser = new
+            {
+                newDeal.Advertiser.UserId,
+               newDeal.Advertiser.Name,
+                newDeal.Advertiser.Email
+            },
+            Platform = new
+            {
+                newDeal.Platform.UserId,
+                newDeal.Platform.Name,
+                newDeal.Platform.Email
+            }
+        });
                     
-        else return BadRequest(new { Massage = "Не удалось создать сделку" });
+        else return BadRequest(new { message = "Не удалось создать сделку" });
     }
 
 }

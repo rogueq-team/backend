@@ -9,6 +9,7 @@ namespace Backend.Models
     public class FrontToUser
     {
 
+        [Required]
         public string Name { get; set; } = string.Empty;
         [Required]
         public string Login { get; set; } = string.Empty;

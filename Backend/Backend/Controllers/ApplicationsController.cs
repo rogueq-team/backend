@@ -29,8 +29,15 @@ namespace Backend.Controllers
         {
             var app = await _service.FindByIdAsync(id);
             if (app == null)
-                return NotFound("Заявка не найдена");
-            return app;
+                return NotFound(new {message="Заявка не найдена"});
+            return Ok(new
+            {
+                ApplicationId=app.ApplicationId,
+                Description = app.Description,
+                Cost = app.Cost,
+                Status=app.Status,
+                Categories=app.Categories
+            });
         }
 
         [HttpPost("CreateApp")]
@@ -68,12 +75,22 @@ namespace Backend.Controllers
 
             ApplicationEntity application = new ApplicationEntity(Fapplication);
             var created = await _service.AddAsync(application);
-            return CreatedAtAction(nameof(Get), new { id = created.ApplicationId }, created);
+            return Ok(new
+            {   
+                ApplicationId=application.ApplicationId,
+                Description = application.Description,
+                Cost = application.Cost,
+                Status=application.Status,
+                Categories=application.Categories
+            }) ;          
+            
+            
         }
 
         [HttpPut("UpdataApp/{id}")]
-        public async Task<IActionResult> Update(Guid id, ApplicationEntity updated)
+        public async Task<IActionResult> Update(Guid id, FrontToApp Fupdated)
         {
+            var updated = new ApplicationEntity(Fupdated);
             var userIdClaim = User.FindFirst("UserId")?.Value;
             if (userIdClaim == null || !Guid.TryParse(userIdClaim, out Guid userId))
                 return BadRequest(new { Message = "Некорректный пользователь" });
@@ -104,7 +121,14 @@ namespace Backend.Controllers
             if (apps == null || !apps.Any())
                 return NotFound("Заявки пользователя не найдены");
 
-            return Ok(apps);
+            return Ok(apps.Select(app => new
+            {   ApplicationId=app.ApplicationId,
+                Description = app.Description,
+                Cost = app.Cost,
+                Status=app.Status,
+                Categories=app.Categories
+                
+            }));
         }
 
 
@@ -126,3 +150,6 @@ namespace Backend.Controllers
         }
     }
 }
+
+
+
