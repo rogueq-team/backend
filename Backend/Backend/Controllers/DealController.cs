@@ -204,6 +204,10 @@ public class DealController : ControllerBase
         
        
         DealEntity newDeal = new DealEntity { ApplicationId = applicationId, AdvertiserId = advertiser.UserId, PlatformId = Guid.Parse(platformId), Description = description, Advertiser = advertiser, Platform = platform, Status = DealStatus.InProgress };
+         if (application.Deals == null)
+    {
+        application.Deals = new List<DealEntity>();
+    }
          application.Deals.Add(newDeal);
 
         bool flag = await _dealService.AddAsync(newDeal);
