@@ -34,13 +34,13 @@ public class UserService
     public async Task<UserEntity?> FindByLoginAsync(string? login)
     {
         if (string.IsNullOrEmpty(login)) return null;
-        return await _db.Users.FirstOrDefaultAsync<UserEntity>(User => User.Login == login);
+        return await _db.Users.FirstOrDefaultAsync<UserEntity>(User => User.Login == login && User.DeletedAt==null);
     }
 
     public async Task<UserEntity?> FindByEmailAsync(string? email)
     {
         if (string.IsNullOrEmpty(email)) return null;
-        return await _db.Users.FirstOrDefaultAsync<UserEntity>(User => User.Email == email);
+        return await _db.Users.FirstOrDefaultAsync<UserEntity>(User => User.Email == email && User.DeletedAt==null);
     }
     public async Task<UserEntity?> FindByIdAsync(Guid id)
     {

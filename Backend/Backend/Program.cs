@@ -9,7 +9,7 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -39,20 +39,20 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// Database
+
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("AppDbContext"));
 });
 
-// Services
+
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<JWTService>();
 builder.Services.AddScoped<RefreshTokenService>();
 builder.Services.AddScoped<ApplicationService>();
 builder.Services.AddScoped<DealService>();
 
-// JWT Authentication
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -68,12 +68,35 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateActor = false,
             RoleClaimType = "Role",
             NameClaimType = "UserId"
+
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var tokenFromHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+
+                if (!string.IsNullOrEmpty(tokenFromHeader))
+                {
+                    context.Token = tokenFromHeader.Trim();
+                }
+
+
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = context =>
+            {
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                return Task.CompletedTask;
+            }
         };
     });
-
 builder.Services.AddAuthorization();
 
-// CORS
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
@@ -86,16 +109,16 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 
-// ✅ ПРАВИЛЬНЫЙ ПОРЯДОК MIDDLEWARE
+
+
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("AllowReactApp");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// ✅ ИСПРАВЛЕННЫЙ SWAGGER
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -108,19 +131,19 @@ if (app.Environment.IsDevelopment())
 
 app.MapControllers();
 
-// Database migration
+
 try
 {
     using (var scope = app.Services.CreateScope())
     {
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         context.Database.Migrate();
-        Console.WriteLine("✅ База данных создана и миграции применены");
+        Console.WriteLine("База данных создана и миграции применены");
     }
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"❌ Ошибка при создании БД: {ex.Message}");
+    Console.WriteLine($"Ошибка при создании БД: {ex.Message}");
 }
 
 app.Run();
