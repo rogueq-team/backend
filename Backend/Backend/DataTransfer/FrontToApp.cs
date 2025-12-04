@@ -23,6 +23,7 @@ namespace Backend.Models
         public ApplicationStatus Status { get; set; }
 
     }
+    
 
 }
 

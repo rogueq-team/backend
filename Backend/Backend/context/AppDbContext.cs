@@ -11,7 +11,7 @@ namespace Backend
         public DbSet<ApplicationEntity> Applications { get; set; }
         public DbSet<DealEntity> Deals { get; set; }
         //public DbSet<TransactionEntity> Transactions { get; set; }
-        //public DbSet<MessageEntity> Messages { get; set; }
+        public DbSet<MessageEntity> Messages { get; set; }
         public DbSet<FeedbackEntity> Feedbacks { get; set; }
         //public DbSet<CategoryEntity> Categories { get; set; }
         //public DbSet<PlatformCategoryEntity> PlatformCategories { get; set; }
