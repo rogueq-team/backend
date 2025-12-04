@@ -9,8 +9,8 @@ namespace Backend.Entities
         [Required]
         public Guid CategoryId { get; set; }
         [Required]
-        public ApplicationEntity Application { get; set; } = null!;
+        public ApplicationEntity? Application { get; set; }
         [Required]
-        public CategoryEntity Category { get; set; } = null!;
+        public CategoryEntity? Category { get; set; }
     }
 }

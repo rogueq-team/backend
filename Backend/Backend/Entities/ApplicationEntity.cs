@@ -31,8 +31,8 @@ namespace Backend.Entities
 
         // Связи _________________________
         public List<DealEntity>? Deals { get; set; }
-
         public List<ApplicationCategoryEntity>? ApplicationCategories { get; set; }
+        [NotMapped]
         public List<CategoryEntity>? Categories { get; set; }
         // _________________________
 

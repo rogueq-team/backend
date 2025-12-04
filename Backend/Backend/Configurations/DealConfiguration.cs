@@ -41,6 +41,14 @@ namespace Backend.Configurations
             .HasColumnName("created_at")
             .IsRequired();
 
+            builder.Property(d => d.DeletedAt)
+            .HasColumnName("deleted_at")
+            .IsRequired();
+
+            builder.Property(d => d.UpdatedAt)
+            .HasColumnName("updated_at")
+            .IsRequired();
+
             builder.HasOne(d => d.Advertiser)
             .WithMany(u => u.DealsAsAdvertiser)
             .HasForeignKey(d => d.AdvertiserId)
@@ -58,9 +66,9 @@ namespace Backend.Configurations
                 .HasForeignKey<TransactionEntity>(t => t.DealId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            /*builder.HasMany(d => d.Messages)
+            builder.HasMany(d => d.Messages)
                 .WithOne(m => m.Deal)
-                .HasForeignKey(d => d.DealId);*/
+                .HasForeignKey(d => d.DealId);
             
             builder.HasIndex(d => d.AdvertiserId);
             builder.HasIndex(d => d.PlatformId);

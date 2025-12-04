@@ -89,9 +89,9 @@ namespace Backend.Configurations
                 .WithOne()
                 .HasForeignKey(a => a.UserId);
 
-           /* builder.HasMany(u => u.Messages)
+           builder.HasMany(u => u.Messages)
                 .WithOne(m => m.User)
-                .HasForeignKey(a => a.UserId);*/
+                .HasForeignKey(a => a.UserId);
 
             builder.HasMany(u => u.SentFeedbacks)
                 .WithOne(f => f.Sender)
@@ -111,14 +111,15 @@ namespace Backend.Configurations
             .HasForeignKey(d => d.PlatformId)
             .OnDelete(DeleteBehavior.Restrict);
 
-            /*builder.HasMany(u => u.AdvertiserCategories)
+            builder.HasMany(u => u.AdvertiserCategories)
                 .WithOne(c => c.Advertiser)
-                .HasForeignKey(c => c.AdvertiserId);*/
+                .HasForeignKey(c => c.AdvertiserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            /*builder.HasMany(u => u.PlatformCategories)
+            builder.HasMany(u => u.PlatformCategories)
                 .WithOne(c => c.Platform)
-                .HasForeignKey(c => c.PlatformId);
-                */
+                .HasForeignKey(c => c.PlatformId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
