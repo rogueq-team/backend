@@ -111,11 +111,10 @@ public class ChatHub: Hub
             MessageId = m.Id,
             Text = m.Text,
             SenderId = m.UserId,
-            SenderName = m.User?.Username,
+            SenderName = m.User?.Name,
             DealId = m.DealId,
             Timestamp = m.CreatedAt,
             IsOwn = m.UserId == userGuid,
-            IsRead = m.IsRead // Добавьте это поле в MessageEntity
         }).ToList();
 
         await Clients.Caller.SendAsync("MessageHistory", new
