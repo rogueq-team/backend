@@ -24,5 +24,18 @@ namespace Backend.Entities
         [Required]
         [MaxLength(600)]
         public string? Text { get; set; } = String.Empty;
+        public MessageEntity(Guid dealId, DealEntity? deal, Guid userId, UserEntity? user, string? text)
+        {
+      
+            DealId=dealId;
+            Deal=deal;
+            UserId=userId;
+            User=user;
+            Text=text;
+        }
+        public MessageEntity()
+        {
+            
+        }
     }
 }

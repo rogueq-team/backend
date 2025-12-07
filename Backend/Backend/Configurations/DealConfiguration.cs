@@ -42,8 +42,8 @@ namespace Backend.Configurations
             .IsRequired();
 
             builder.Property(d => d.DeletedAt)
-            .HasColumnName("deleted_at")
-            .IsRequired();
+            .HasColumnName("deleted_at");
+            
 
             builder.Property(d => d.UpdatedAt)
             .HasColumnName("updated_at")
