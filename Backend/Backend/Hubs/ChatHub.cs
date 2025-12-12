@@ -28,6 +28,7 @@ public class ChatHub: Hub
         _dealService=ds;      
     }
 
+    [HubMethodName("SendTo")]
     public async Task SendTo(MassegeDto messageDto)
     {
         if ( messageDto.Text.IsNullOrEmpty())
