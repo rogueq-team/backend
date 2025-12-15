@@ -414,7 +414,7 @@ namespace Backend.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .IsRequired()
+                        .IsRequired(false)
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 

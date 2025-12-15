@@ -35,8 +35,7 @@ namespace Backend.Migrations
                 name: "deleted_at",
                 table: "deals",
                 type: "timestamp with time zone",
-                nullable: false,
-                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                nullable: true,
                 oldClrType: typeof(DateTime),
                 oldType: "timestamp with time zone",
                 oldNullable: true);
