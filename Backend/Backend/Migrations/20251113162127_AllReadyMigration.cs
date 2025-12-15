@@ -16,10 +16,10 @@ namespace Backend.Migrations
                 table: "deals",
                 newName: "updated_at");
 
-            migrationBuilder.RenameColumn(
-                name: "DeletedAt",
-                table: "deals",
-                newName: "deleted_at");
+            // migrationBuilder.RenameColumn(
+            //     name: "DeletedAt",
+            //     table: "deals",
+            //     newName: "deleted_at");
 
             migrationBuilder.AlterColumn<string>(
                 name: "status",
@@ -36,6 +36,7 @@ namespace Backend.Migrations
                 table: "deals",
                 type: "timestamp with time zone",
                 nullable: true,
+
                 oldClrType: typeof(DateTime),
                 oldType: "timestamp with time zone",
                 oldNullable: true);

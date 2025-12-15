@@ -77,6 +77,7 @@ builder.Services.AddScoped<RefreshTokenService>();
 builder.Services.AddScoped<ApplicationService>();
 builder.Services.AddScoped<DealService>();
 builder.Services.AddScoped<MessageService>();
+builder.Services.AddScoped<FeedbackService>();
 
 // 3. JWT для SignalR (ОЧЕНЬ ВАЖНО!)
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

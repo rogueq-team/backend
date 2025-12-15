@@ -65,6 +65,7 @@ namespace Backend.Migrations
                 columns: table => new
                 {
                     feedback_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    deal_id = table.Column<Guid>(type: "uuid", nullable: false),
                     sender_id = table.Column<Guid>(type: "uuid", nullable: false),
                     recipient_id = table.Column<Guid>(type: "uuid", nullable: false),
                     text = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
@@ -102,7 +103,7 @@ namespace Backend.Migrations
                     status = table.Column<string>(type: "character varying(50)", maxLength: 100, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    deleted_at = table.Column<DateTime?>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {

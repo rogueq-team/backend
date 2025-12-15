@@ -6,13 +6,18 @@ namespace Backend.Configurations
 {
     public class FeedbackConfiguration : IEntityTypeConfiguration<FeedbackEntity>
     {
-        public void Configure(EntityTypeBuilder<FeedbackEntity> builder) {
+        public void Configure(EntityTypeBuilder<FeedbackEntity> builder)
+        {
             builder.ToTable("feedbacks");
 
             builder.HasKey(f => f.Id);
             builder.Property(f => f.Id)
                 .HasColumnName("feedback_id")
                 .ValueGeneratedOnAdd();
+
+            builder.Property(f => f.DealId)
+                .HasColumnName("deal_id")
+                .IsRequired();
 
             builder.Property(f => f.Text)
                 .HasColumnName("text")
