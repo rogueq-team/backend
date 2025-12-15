@@ -2,8 +2,7 @@ using Backend.Entities;
 using Backend.Enums;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
-using Backend.Models;
-using Microsoft.AspNetCore.Components.Web;
+
 namespace Backend.Controllers
 {
     [Authorize]
@@ -29,19 +28,12 @@ namespace Backend.Controllers
         {
             var app = await _service.FindByIdAsync(id);
             if (app == null)
-                return NotFound(new {message="Заявка не найдена"});
-            return Ok(new
-            {
-                ApplicationId=app.ApplicationId,
-                Description = app.Description,
-                Cost = app.Cost,
-                Status=app.Status,
-                Categories=app.Categories
-            });
+                return NotFound("Заявка не найдена");
+            return app;
         }
 
         [HttpPost("CreateApp")]
-        public async Task<IActionResult> Create(FrontToApp Fapplication)
+        public async Task<IActionResult> Create(ApplicationEntity application)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -62,35 +54,24 @@ namespace Backend.Controllers
             if (roleClaim != "Admin" && !(typeClaim == "Advertiser" || typeClaim == "Both"))
                 return StatusCode(403, "У вас нет прав на создание заявки");
 
-            if (Fapplication.Cost <= 0)
+            if (application.Cost <= 0)
                 return BadRequest(new { Message = "Сумма заявки должна быть положительной" });
 
-            if (!Enum.IsDefined(typeof(ApplicationStatus), Fapplication.Status))
+            if (!Enum.IsDefined(typeof(ApplicationStatus), application.Status))
                 return BadRequest(new { Message = "Статус заявки некорректен. Допустимые значения: 0, 1, 2" });
 
-            Fapplication.UserId = userId;
+            application.UserId = userId;
 
-            if (Fapplication.Status == 0)
-                Fapplication.Status = ApplicationStatus.InProgress;
+            if (application.Status == 0)
+                application.Status = ApplicationStatus.InProgress;
 
-            ApplicationEntity application = new ApplicationEntity(Fapplication);
             var created = await _service.AddAsync(application);
-            return Ok(new
-            {   
-                ApplicationId=application.ApplicationId,
-                Description = application.Description,
-                Cost = application.Cost,
-                Status=application.Status,
-                Categories=application.Categories
-            }) ;          
-            
-            
+            return CreatedAtAction(nameof(Get), new { id = created.ApplicationId }, created);
         }
 
         [HttpPut("UpdataApp/{id}")]
-        public async Task<IActionResult> Update(Guid id, FrontToApp Fupdated)
+        public async Task<IActionResult> Update(Guid id, ApplicationEntity updated)
         {
-            var updated = new ApplicationEntity(Fupdated);
             var userIdClaim = User.FindFirst("UserId")?.Value;
             if (userIdClaim == null || !Guid.TryParse(userIdClaim, out Guid userId))
                 return BadRequest(new { Message = "Некорректный пользователь" });
@@ -121,14 +102,7 @@ namespace Backend.Controllers
             if (apps == null || !apps.Any())
                 return NotFound("Заявки пользователя не найдены");
 
-            return Ok(apps.Select(app => new
-            {   ApplicationId=app.ApplicationId,
-                Description = app.Description,
-                Cost = app.Cost,
-                Status=app.Status,
-                Categories=app.Categories
-                
-            }));
+            return Ok(apps);
         }
 
 
@@ -150,6 +124,3 @@ namespace Backend.Controllers
         }
     }
 }
-
-
-

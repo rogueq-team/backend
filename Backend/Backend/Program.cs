@@ -1,15 +1,15 @@
 using System.Security.Claims;
 using System.Text;
 using Backend;
+using Backend.Hubs;
 using Backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.AspNetCore.Http.Connections.Features;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.SignalR;
-using Backend.Hubs;
-using Microsoft.AspNetCore.Http.Connections;
-using Microsoft.AspNetCore.Http.Connections.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -95,7 +95,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             RoleClaimType = "Role",
             NameClaimType = "UserId"
         };
-        
+
         // Ключевая настройка для SignalR
         options.Events = new JwtBearerEvents
         {
@@ -103,16 +103,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             {
                 // 1. Проверяем Query String для WebSocket
                 var accessToken = context.Request.Query["access_token"];
-                
+
                 if (!string.IsNullOrEmpty(accessToken))
                 {
                     context.Token = accessToken;
                     return Task.CompletedTask;
                 }
-                
+
                 // 2. Проверяем заголовок Authorization
                 var tokenFromHeader = context.Request.Headers["Authorization"].FirstOrDefault();
-                
+
                 if (!string.IsNullOrEmpty(tokenFromHeader))
                 {
                     if (tokenFromHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
@@ -150,7 +150,7 @@ app.UseWebSockets();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 
 if (app.Environment.IsDevelopment())
@@ -176,8 +176,9 @@ app.MapHub<ChatHub>("/chatHub", options =>
 
 // Тестовые endpoints для проверки
 app.MapGet("/", () => "Backend is running!");
-app.MapGet("/chatHub/test", () => Results.Ok(new { 
-    status = "SignalR endpoint is available", 
+app.MapGet("/chatHub/test", () => Results.Ok(new
+{
+    status = "SignalR endpoint is available",
     timestamp = DateTime.UtcNow,
     endpoint = "/chatHub"
 }));

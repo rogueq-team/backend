@@ -6,23 +6,23 @@ namespace Backend.Configurations
 {
     public class DealConfiguration : IEntityTypeConfiguration<DealEntity>
     {
-        public void Configure(EntityTypeBuilder<DealEntity> builder) 
+        public void Configure(EntityTypeBuilder<DealEntity> builder)
         {
             builder.ToTable("deals");
 
             builder.HasKey(d => d.DealId);
             builder.Property(d => d.DealId)
-            .HasColumnName("deal_id") 
+            .HasColumnName("deal_id")
             .ValueGeneratedOnAdd();
 
 
             builder.Property(d => d.ApplicationId)
-            .HasColumnName("application_id") 
+            .HasColumnName("application_id")
             .IsRequired();
 
-             builder.Property(d => d.AdvertiserId)
-            .HasColumnName("advertiser_id") 
-            .IsRequired();
+            builder.Property(d => d.AdvertiserId)
+           .HasColumnName("advertiser_id")
+           .IsRequired();
 
             builder.Property(d => d.PlatformId)
             .HasColumnName("platform_id")
@@ -42,8 +42,9 @@ namespace Backend.Configurations
             .IsRequired();
 
             builder.Property(d => d.DeletedAt)
+            .IsRequired(false)
             .HasColumnName("deleted_at");
-            
+
 
             builder.Property(d => d.UpdatedAt)
             .HasColumnName("updated_at")
@@ -69,7 +70,7 @@ namespace Backend.Configurations
             builder.HasMany(d => d.Messages)
                 .WithOne(m => m.Deal)
                 .HasForeignKey(d => d.DealId);
-            
+
             builder.HasIndex(d => d.AdvertiserId);
             builder.HasIndex(d => d.PlatformId);
             builder.HasIndex(d => d.ApplicationId);

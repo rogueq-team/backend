@@ -54,7 +54,7 @@ public class DealController : ControllerBase
             CreatedDate = deal.CreatedAt,
             AdvertiserName = deal.Advertiser?.Name,
             PlatformName = deal.Platform?.Name,
-                        Advertiser = new
+            Advertiser = new
             {
                 deal.Advertiser.UserId,
                 deal.Advertiser.Name,
@@ -178,11 +178,11 @@ public class DealController : ControllerBase
                 deal.Platform.Email
             }
         });
-        
+
     }
 
     [HttpPost("CreateDeal")]
-    [Authorize(roles: new[] { "Admin","User" }, types: new[] { "Platform", "both" })]
+    [AuthorizeAttribute(roles: new[] { "Admin", "User" }, types: new[] { "Platform", "both" })]
     public async Task<IActionResult> CreateDeal(Guid applicationId, string description)
     {
         var application = await _applictionService.FindByIdAsync(applicationId);
@@ -201,40 +201,40 @@ public class DealController : ControllerBase
             return NotFound(new { message = "Пользователь не найден" });
         if (platform.UserId == advertiser.UserId)
             return BadRequest(new { message = "Невозможно принять свою же заявку" });
-        
-       
+
+
         DealEntity newDeal = new DealEntity { ApplicationId = applicationId, AdvertiserId = advertiser.UserId, PlatformId = Guid.Parse(platformId), Description = description, Advertiser = advertiser, Platform = platform, Status = DealStatus.InProgress };
-         if (application.Deals == null)
-    {
-        application.Deals = new List<DealEntity>();
-    }
-         application.Deals.Add(newDeal);
+        if (application.Deals == null)
+        {
+            application.Deals = new List<DealEntity>();
+        }
+        application.Deals.Add(newDeal);
 
         bool flag = await _dealService.AddAsync(newDeal);
         if (flag is true)
             return Ok(new
-        {
-            DealId = newDeal.DealId,
-            ApplicationId = newDeal.ApplicationId,
-            AdvertiserId = newDeal.AdvertiserId,
-            PlatformId = newDeal.PlatformId,
-            Description = newDeal.Description,
-            Status = newDeal.Status,
-            CreatedDate = newDeal.CreatedAt,
-            Advertiser = new
             {
-                newDeal.Advertiser.UserId,
-               newDeal.Advertiser.Name,
-                newDeal.Advertiser.Email
-            },
-            Platform = new
-            {
-                newDeal.Platform.UserId,
-                newDeal.Platform.Name,
-                newDeal.Platform.Email
-            }
-        });
-                    
+                DealId = newDeal.DealId,
+                ApplicationId = newDeal.ApplicationId,
+                AdvertiserId = newDeal.AdvertiserId,
+                PlatformId = newDeal.PlatformId,
+                Description = newDeal.Description,
+                Status = newDeal.Status,
+                CreatedDate = newDeal.CreatedAt,
+                Advertiser = new
+                {
+                    newDeal.Advertiser.UserId,
+                    newDeal.Advertiser.Name,
+                    newDeal.Advertiser.Email
+                },
+                Platform = new
+                {
+                    newDeal.Platform.UserId,
+                    newDeal.Platform.Name,
+                    newDeal.Platform.Email
+                }
+            });
+
         else return BadRequest(new { message = "Не удалось создать сделку" });
     }
 
