@@ -48,27 +48,29 @@ namespace Backend.Controllers
         }
 
 
-        [HttpGet("GetById/feedId")]
+        [HttpGet("GetById/{feedId}")]
         public async Task<IActionResult> GetFeedback(Guid id)
         {
-            var feedback = await _feedbackService.FindByIdAsync(id);
+            var feedback = await _feedbackService.FindByIdDtoAsync(id); //Dto для отзыв!
 
             if (feedback == null)
                 return NotFound(new { Message = "Отзыв не найден" });
 
-            return Ok(feedback);
+            var dto = _feedbackService.MapToDto(feedback);
+
+            return Ok(dto);
         }
 
 
-        [HttpGet("GetByUser/userId")]
+        [HttpGet("GetByUser/{userId}")]
         public async Task<IActionResult> GetFeedbacksForUser(Guid userId)
         {
-            var feedbacks = await _feedbackService.FindByRecipientIdAsync(userId);
+            var feedbacks = await _feedbackService.FindByRecipientIdDtoAsync(userId);
             return Ok(feedbacks);
         }
 
 
-        [HttpDelete("delete/feedId")]
+        [HttpDelete("delete/{feedId}")]
         [Authorize]
         public async Task<IActionResult> DeleteFeedback(Guid id)
         {

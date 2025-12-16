@@ -1,5 +1,6 @@
 using System.Text;
 using System.Threading.Tasks;
+using Backend.DataTransfer;
 using Backend.Entities;
 using Backend.Enums;
 using Backend.Models;
@@ -17,9 +18,26 @@ public class FeedbackService
         _db = context;
     }
 
-    public async Task<FeedbackEntity?> FindByIdAsync(Guid id)
+    public Backend.DataTransfer.FeedbackDto MapToDto(FeedbackEntity feedback, Guid? currentUserId = null)
+    {
+        return new Backend.DataTransfer.FeedbackDto
+        {
+            Id = feedback.Id,
+            DealId = feedback.DealId,
+            SenderId = feedback.SenderId,
+            SenderName = feedback.Sender?.Login ?? "Unknown",
+            RecipientId = feedback.RecipientId,
+            RecipientName = feedback.Recipient?.Login ?? "Unknown",
+            Stars = feedback.Stars,
+            Text = feedback.Text,
+            CreatedAt = feedback.CreatedAt
+        };
+    }
+
+    public async Task<FeedbackEntity?> FindByIdDtoAsync(Guid id)
     {
         return await _db.Feedbacks.Include(f => f.Sender).Include(f => f.Recipient).FirstOrDefaultAsync(f => f.Id == id);
+
     }
 
     public async Task<List<FeedbackEntity>> FindBySenderIdAsync(Guid senderId)
@@ -27,9 +45,10 @@ public class FeedbackService
         return await _db.Feedbacks.Where(f => f.SenderId == senderId).OrderByDescending(f => f.CreatedAt).ToListAsync();
     }
 
-    public async Task<List<FeedbackEntity>> FindByRecipientIdAsync(Guid recipientId)
+    public async Task<List<FeedbackEntity>> FindByRecipientIdDtoAsync(Guid recipientId)
     {
         return await _db.Feedbacks.Where(f => f.RecipientId == recipientId).OrderByDescending(f => f.CreatedAt).ToListAsync();
+
     }
 
     public async Task<(bool Success, string Message)> CreateFeedbackAsync(
