@@ -20,7 +20,7 @@ public class RefreshTokenService
         _configuration = cfg;
         _userService = usrvs;
     }
-    //static public RefreshTokenService(IConfiguration conf) => _configuration = conf;
+   
      public async Task<string> CreateRefreshToken(Guid  userId)
     {
         DeleteRefreshTokenByUserId(userId);

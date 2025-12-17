@@ -1,7 +1,9 @@
 using Backend.Entities;
 using Backend.Enums;
+using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Backend.Controllers
 {
@@ -18,23 +20,33 @@ namespace Backend.Controllers
         }
 
         [HttpGet("GetAllApp")]
-        public async Task<ActionResult<List<ApplicationEntity>>> GetAll()
+        public async Task<ActionResult<List<AppToFront>>> GetAll()
         {
-            return await _service.GetAllAsync();
+            List<AppToFront> Res = new List<AppToFront>();
+
+            List<ApplicationEntity> Ents= await _service.GetAllAsync();
+            if (!Ents.IsNullOrEmpty())
+            {
+                foreach (var Ent in Ents)
+                    Res.Add(new AppToFront(Ent));
+            } else return BadRequest(new {Massage="База данных пуста или произошла ошибка получения данных"});
+            return Res;
         }
 
         [HttpGet("GetApp/{id}")]
-        public async Task<ActionResult<ApplicationEntity>> Get(Guid id)
+        public async Task<ActionResult<AppToFront>> Get(Guid id)
         {
-            var app = await _service.FindByIdAsync(id);
+            var app= await _service.FindByIdAsync(id);
             if (app == null)
                 return NotFound("Заявка не найдена");
-            return app;
+            AppToFront Resapp= new AppToFront(app);
+            return Resapp;
         }
 
         [HttpPost("CreateApp")]
-        public async Task<IActionResult> Create(ApplicationEntity application)
+        public async Task<IActionResult> Create(FrontToApp Application)
         {
+            ApplicationEntity application = new ApplicationEntity(Application);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -70,8 +82,9 @@ namespace Backend.Controllers
         }
 
         [HttpPut("UpdataApp/{id}")]
-        public async Task<IActionResult> Update(Guid id, ApplicationEntity updated)
+        public async Task<IActionResult> Update(Guid id, FrontToApp Updated)
         {
+            ApplicationEntity updated= new ApplicationEntity(Updated);
             var userIdClaim = User.FindFirst("UserId")?.Value;
             if (userIdClaim == null || !Guid.TryParse(userIdClaim, out Guid userId))
                 return BadRequest(new { Message = "Некорректный пользователь" });
@@ -91,18 +104,21 @@ namespace Backend.Controllers
         }
 
         [HttpGet("GetByUser")]
-        public async Task<ActionResult<List<ApplicationEntity>>> GetByUser()
+        public async Task<ActionResult<List<AppToFront>>> GetByUser()
         {
             var userId = User.FindFirst("UserId")?.Value;
             if (userId == null || !Guid.TryParse(userId, out Guid parsedUserId))
                 return BadRequest(new { Message = "Некорректный пользователь или токен" });
-
+            
             var apps = await _service.GetByUserIdAsync(parsedUserId);
 
             if (apps == null || !apps.Any())
                 return NotFound("Заявки пользователя не найдены");
+            List<AppToFront> Res= new List<AppToFront>();
+            foreach (var app in apps)
+                    Res.Add(new AppToFront(app));
 
-            return Ok(apps);
+            return Ok(Res);
         }
 
 
