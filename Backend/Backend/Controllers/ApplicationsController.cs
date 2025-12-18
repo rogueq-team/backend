@@ -46,7 +46,7 @@ namespace Backend.Controllers
         [HttpPost("CreateApp")]
         public async Task<IActionResult> Create(FrontToApp Application)
         {
-            System.Console.WriteLine($"На бэк пришло {Application.Cost}");
+   
             ApplicationEntity application = new ApplicationEntity(Application);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -76,9 +76,8 @@ namespace Backend.Controllers
             application.UserId = userId;
 
 
-            System.Console.WriteLine($"после прохода через DTO {application.Cost}");
+
             var created = await _service.AddAsync(application);
-            System.Console.WriteLine($"После добавления в БД {application.Cost}");
             return CreatedAtAction(nameof(Get), new { id = created.ApplicationId }, created);
         }
 
