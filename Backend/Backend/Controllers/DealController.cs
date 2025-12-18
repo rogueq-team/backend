@@ -205,6 +205,7 @@ public class DealController : ControllerBase
         if (platform.Balance<application.Cost)
             return BadRequest(new {message="Недостаточно средств"});
         platform.Balance-=application.Cost;
+        application.Status=ApplicationStatus.InProgress;
         DealEntity newDeal = new DealEntity { ApplicationId = applicationId, AdvertiserId = advertiser.UserId, PlatformId = Guid.Parse(platformId), Description = description, Advertiser = advertiser, Platform = platform, Status = DealStatus.InProgress };
         if (application.Deals == null)
         {

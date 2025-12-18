@@ -80,7 +80,7 @@ namespace Backend.Controllers
             return CreatedAtAction(nameof(Get), new { id = created.ApplicationId }, created);
         }
 
-        [HttpPut("UpdataApp/{id}")]
+        [HttpPut("ApplicationUpdate/{id}")]
         public async Task<IActionResult> Update(Guid id, FrontToApp Updated)
         {
             ApplicationEntity updated= new ApplicationEntity(Updated);
