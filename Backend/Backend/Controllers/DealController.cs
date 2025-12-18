@@ -202,7 +202,7 @@ public class DealController : ControllerBase
         if (platform.UserId == advertiser.UserId)
             return BadRequest(new { message = "Невозможно принять свою же заявку" });
 
-        if (platform.Balance<=application.Cost)
+        if (platform.Balance<application.Cost)
             return BadRequest(new {message="Недостаточно средств"});
         platform.Balance-=application.Cost;
         DealEntity newDeal = new DealEntity { ApplicationId = applicationId, AdvertiserId = advertiser.UserId, PlatformId = Guid.Parse(platformId), Description = description, Advertiser = advertiser, Platform = platform, Status = DealStatus.InProgress };
