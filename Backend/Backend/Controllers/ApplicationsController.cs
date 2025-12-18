@@ -74,8 +74,7 @@ namespace Backend.Controllers
 
             application.UserId = userId;
 
-            if (application.Status == 0)
-                application.Status = ApplicationStatus.InProgress;
+
 
             var created = await _service.AddAsync(application);
             return CreatedAtAction(nameof(Get), new { id = created.ApplicationId }, created);
