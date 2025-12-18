@@ -202,7 +202,9 @@ public class DealController : ControllerBase
         if (platform.UserId == advertiser.UserId)
             return BadRequest(new { message = "Невозможно принять свою же заявку" });
 
-
+        if (platform.Balance<=application.Cost)
+            return BadRequest(new {message="Недостаточно средств"});
+        platform.Balance-=application.Cost;
         DealEntity newDeal = new DealEntity { ApplicationId = applicationId, AdvertiserId = advertiser.UserId, PlatformId = Guid.Parse(platformId), Description = description, Advertiser = advertiser, Platform = platform, Status = DealStatus.InProgress };
         if (application.Deals == null)
         {
@@ -210,8 +212,10 @@ public class DealController : ControllerBase
         }
         application.Deals.Add(newDeal);
 
+        
         bool flag = await _dealService.AddAsync(newDeal);
         if (flag is true)
+            
             return Ok(new
             {
                 DealId = newDeal.DealId,
