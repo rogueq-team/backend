@@ -30,14 +30,17 @@ public class DealService
     {
         return await _db.Deals.Include(d => d.Advertiser).Include(d => d.Platform).Where(deal => deal.ApplicationId == applicationId).ToListAsync();
     }
-
+    public async Task<List<DealEntity>> FindByUSerIdAsync(Guid UserId)
+    {
+        return await _db.Deals.Include(d => d.Advertiser).Include(d => d.Platform).Where(deal=> deal.AdvertiserId==UserId || deal.PlatformId==UserId).ToListAsync();
+    }
     public async Task<List<DealEntity>> FindByAdvertiserIdAsync(Guid advertiserId)
     {
-        return await _db.Deals.Where(deal => deal.AdvertiserId == advertiserId).ToListAsync();
+        return await _db.Deals.Include(d => d.Advertiser).Include(d => d.Platform).Where(deal => deal.AdvertiserId == advertiserId).ToListAsync();
     }
     public async Task<List<DealEntity>> FindByPlatformIdAsync(Guid platformId)
     {
-        return await _db.Deals.Where(deal => deal.PlatformId == platformId).ToListAsync();
+        return await _db.Deals.Include(d => d.Advertiser).Include(d => d.Platform).Where(deal => deal.PlatformId == platformId).ToListAsync();
     }
 
     public async Task<bool> AddAsync(DealEntity deal)

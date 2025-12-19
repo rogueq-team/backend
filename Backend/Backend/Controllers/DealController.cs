@@ -8,6 +8,7 @@ using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 [ApiController]
 [Route("[controller]")]
 public class DealController : ControllerBase
@@ -43,6 +44,49 @@ public class DealController : ControllerBase
                 deals.Remove(deal);
         }
 
+        return Ok(deals.Select(deal => new
+        {
+            DealId = deal.DealId,
+            ApplicationId = deal.ApplicationId,
+            AdvertiserId = deal.AdvertiserId,
+            PlatformId = deal.PlatformId,
+            Description = deal.Description,
+            Status = deal.Status,
+            CreatedDate = deal.CreatedAt,
+            AdvertiserName = deal.Advertiser?.Name,
+            PlatformName = deal.Platform?.Name,
+            Advertiser = new
+            {
+                deal.Advertiser.UserId,
+                deal.Advertiser.Name,
+                deal.Advertiser.Email
+            },
+            Platform = new
+            {
+                deal.Platform.UserId,
+                deal.Platform.Name,
+                deal.Platform.Email
+            }
+        }));
+    }
+
+    [HttpGet("GetDealByUser")]
+    [Authorize]
+    public async Task<IActionResult> GetDealsByUser()
+    {
+            var userId = User.FindFirst("UserId")?.Value;
+        if (userId is null)
+            return BadRequest(new { message = "Некоректный пользователь" });
+        var user = await _userService.FindByIdAsync(Guid.Parse(userId));
+        if (user is null)
+            return NotFound(new { message = "Пользователь не найден" });
+
+
+        
+        var deals = await _dealService.FindByUserIdAsync(user.UserId);
+        if (deals.IsNullOrEmpty())
+            return NotFound(new { message = "Сделки не найдена" });
+            
         return Ok(deals.Select(deal => new
         {
             DealId = deal.DealId,
