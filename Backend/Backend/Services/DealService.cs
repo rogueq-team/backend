@@ -30,10 +30,12 @@ public class DealService
     {
         return await _db.Deals.Include(d => d.Advertiser).Include(d => d.Platform).Where(deal => deal.ApplicationId == applicationId).ToListAsync();
     }
-    public async Task<List<DealEntity>> FindByUSerIdAsync(Guid UserId)
-    {
-        return await _db.Deals.Include(d => d.Advertiser).Include(d => d.Platform).Where(deal=> deal.AdvertiserId==UserId || deal.PlatformId==UserId).ToListAsync();
-    }
+public async Task<List<DealEntity>> FindByUserIdAsync(Guid userId)
+{
+    return await _db.Deals
+        .Include(d => d.Advertiser).Include(d => d.Platform).Where(deal => deal.AdvertiserId == userId || deal.PlatformId == userId)
+        .ToListAsync();
+}
     public async Task<List<DealEntity>> FindByAdvertiserIdAsync(Guid advertiserId)
     {
         return await _db.Deals.Include(d => d.Advertiser).Include(d => d.Platform).Where(deal => deal.AdvertiserId == advertiserId).ToListAsync();
