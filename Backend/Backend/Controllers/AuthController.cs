@@ -121,6 +121,7 @@ public class AuthController : ControllerBase
         return Ok(new { Persons = listik });
     }
     [HttpPost("RefreshToken")]
+    [Authorize]
     public async Task<IActionResult> RefreshToken(RefreshDto refreshToken)
     {
         if (string.IsNullOrEmpty(refreshToken.RefreshToken))

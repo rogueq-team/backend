@@ -27,7 +27,7 @@ public class RefreshTokenService
         if ( (await _userService.FindByIdAsync(userId)) is not null)
         {
             double time = 1;
-            double.TryParse(_configuration["JWTOptions:Accestimeout"], out time);
+            double.TryParse(_configuration["JWTOptions:RefreshTimeout"], out time);
             RefreshToken NewRefreshToken = new RefreshToken()
             {
                 Id = id++,

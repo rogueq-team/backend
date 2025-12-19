@@ -22,7 +22,7 @@ public class JWTService
             new("UserType", $"{user.Type}")];
         string key = _configuration["JWTOptions:NoSecretKey"];
         double time = 1;
-        double.TryParse(_configuration["JWTOptions:Accestimeout"], out time);
+        double.TryParse(_configuration["JWTOptions:AccesTimeout"], out time);
         var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), SecurityAlgorithms.HmacSha256);
         var token = new JwtSecurityToken(
             claims: claims,
