@@ -28,7 +28,7 @@ public class DealService
     }
     public async Task<List<DealEntity>> FindByApplicationIdAsync(Guid applicationId)
     {
-        return await _db.Deals.Where(deal => deal.ApplicationId == applicationId).ToListAsync();
+        return await _db.Deals.Include(d => d.Advertiser).Include(d => d.Platform).Where(deal => deal.ApplicationId == applicationId).ToListAsync();
     }
 
     public async Task<List<DealEntity>> FindByAdvertiserIdAsync(Guid advertiserId)

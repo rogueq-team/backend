@@ -39,7 +39,7 @@ public class DealController : ControllerBase
 
         foreach (DealEntity deal in deals)
         {
-            if (!(Guid.Parse(userId) == deal.AdvertiserId && user.Type == UserType.Advertiser || Guid.Parse(userId) == deal.PlatformId && user.Type == UserType.Platform || user.Role == UserRole.Admin))
+            if (!(Guid.Parse(userId) == deal.AdvertiserId && (user.Type == UserType.Advertiser || user.Type==UserType.Both) || Guid.Parse(userId) == deal.PlatformId && (user.Type == UserType.Platform || user.Type==UserType.Both) || user.Role == UserRole.Admin))
                 deals.Remove(deal);
         }
 
