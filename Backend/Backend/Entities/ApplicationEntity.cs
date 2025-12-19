@@ -47,6 +47,7 @@ namespace Backend.Entities
             Deals = null;
             ApplicationCategories = null;
             Categories = null;
+            Status=FApp.Status;
             
         }
     }

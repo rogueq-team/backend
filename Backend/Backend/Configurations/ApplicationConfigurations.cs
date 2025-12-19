@@ -35,7 +35,6 @@ namespace Backend.Configurations
                 .HasColumnName("status")
                 .HasMaxLength(50)
                 .HasConversion<string>()
-                .HasDefaultValue(ApplicationStatus.InProgress)
                 .IsRequired();
 
             builder.Property(a => a.CreatedAt)
