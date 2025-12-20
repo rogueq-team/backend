@@ -1,3 +1,4 @@
+using System.Net.NetworkInformation;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Backend;
@@ -171,10 +172,19 @@ public class DealController : ControllerBase
         if (!(deal.ApplicationId == user.UserId || deal.PlatformId == user.UserId))
             return BadRequest(new { message = "Сделки не существует или данный пользователь не имеет к ней доступа" });
 
-        
-
+        if (!Enum.TryParse<DealStatus>(status, out DealStatus dealStatus))
+            return BadRequest(new { message = "Невозможный статус" });
+        if (dealStatus == DealStatus.Completed)
+        {
+            deal.Platform.Balance+=deal.Application.Cost;
+        } else
+            if (dealStatus==DealStatus.Canceled)
+            {
+                deal.Advertiser.Balance+=deal.Application.Cost;
+            }
         if (false == await _dealService.ChangeStatusById(dealId, status))
             return BadRequest(new { message = "Невозможный статус" });
+        
         return Ok(new
         {
             dealID = deal.DealId,
@@ -248,6 +258,9 @@ public class DealController : ControllerBase
         if (platform.UserId == advertiser.UserId)
             return BadRequest(new { message = "Невозможно принять свою же заявку" });
 
+        if (advertiser.Balance<application.Cost)
+            return BadRequest(new {message="Невозможно созать так как у рекламодателя недостаточно средств для создания сделки"});
+        
         
         application.Status=ApplicationStatus.InProgress;
         DealEntity newDeal = new DealEntity { ApplicationId = applicationId, AdvertiserId = advertiser.UserId, PlatformId = Guid.Parse(platformId), Description = description, Advertiser = advertiser, Platform = platform, Status = DealStatus.InProgress };
@@ -260,7 +273,10 @@ public class DealController : ControllerBase
         
         bool flag = await _dealService.AddAsync(newDeal);
         if (flag is true)
+           { 
+             advertiser.Balance-=application.Cost;
             
+
             return Ok(new
             {
                 DealId = newDeal.DealId,
@@ -283,6 +299,7 @@ public class DealController : ControllerBase
                     newDeal.Platform.Email
                 }
             });
+           }
 
         else return BadRequest(new { message = "Не удалось создать сделку" });
     }
