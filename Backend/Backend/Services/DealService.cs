@@ -79,7 +79,9 @@ public async Task<List<DealEntity>> FindByUserIdAsync(Guid userId)
                 return false;
             if (Enum.TryParse<DealStatus>(status, out DealStatus dealStatus))
             {
+                
                 deal.Status = dealStatus;
+                
             }
             else
             {

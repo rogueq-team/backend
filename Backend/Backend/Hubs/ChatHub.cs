@@ -21,6 +21,7 @@ public class ChatHub: Hub
     private readonly MessageService _messageService;
     private readonly UserService _userService;
     private readonly DealService _dealService;
+    
     public ChatHub(MessageService ms, UserService us, DealService ds )
     {
         _messageService=ms;

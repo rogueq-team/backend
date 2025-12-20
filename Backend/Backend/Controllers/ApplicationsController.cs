@@ -74,7 +74,7 @@ namespace Backend.Controllers
                 return BadRequest(new { Message = "Статус заявки некорректен. Допустимые значения: 0, 1, 2" });
 
             application.UserId = userId;
-            System.Console.WriteLine($"!!!!!!!!!!!!!!!{application.Status}");
+        
 
 
             var created = await _service.AddAsync(application);

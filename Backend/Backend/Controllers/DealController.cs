@@ -171,6 +171,8 @@ public class DealController : ControllerBase
         if (!(deal.ApplicationId == user.UserId || deal.PlatformId == user.UserId))
             return BadRequest(new { message = "Сделки не существует или данный пользователь не имеет к ней доступа" });
 
+        
+
         if (false == await _dealService.ChangeStatusById(dealId, status))
             return BadRequest(new { message = "Невозможный статус" });
         return Ok(new
@@ -246,9 +248,7 @@ public class DealController : ControllerBase
         if (platform.UserId == advertiser.UserId)
             return BadRequest(new { message = "Невозможно принять свою же заявку" });
 
-        if (platform.Balance<application.Cost)
-            return BadRequest(new {message="Недостаточно средств"});
-        platform.Balance-=application.Cost;
+        
         application.Status=ApplicationStatus.InProgress;
         DealEntity newDeal = new DealEntity { ApplicationId = applicationId, AdvertiserId = advertiser.UserId, PlatformId = Guid.Parse(platformId), Description = description, Advertiser = advertiser, Platform = platform, Status = DealStatus.InProgress };
         if (application.Deals == null)
